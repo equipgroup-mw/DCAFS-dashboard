@@ -17,6 +17,10 @@
     --gold:  #a8935a;
     --gold-dk:#8c7a4a;
     --gold-lt:#f7f3eb;
+    --teal:  #004551;
+    --teal-lt:#e0edf0;
+    --sage:  #81845a;
+    --sage-lt:#f0f1ea;
     --white:  #ffffff;
     --grey-50:#f7f9fb;
     --grey-100:#eef1f5;
@@ -68,10 +72,10 @@
 
   .sidebar-logo-area {
     background: var(--white);
-    padding: 18px 16px 16px;
-    border-bottom: 1px solid var(--grey-100);
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-    margin: 0 0 4px 0;
+    padding: 16px 14px;
+    margin: 10px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--navy);
   }
   .sidebar-logo {
     display: flex;
@@ -79,10 +83,10 @@
     gap: 12px;
   }
   .sidebar-logo img { 
-    height: 38px; 
+    height: 36px; 
     width: auto; 
     object-fit: contain; 
-    border-radius: var(--radius-sm);
+    border-radius: 6px;
   }
   .sidebar-logo-text { 
     font-size: .76rem; 
@@ -273,8 +277,8 @@
   }
   .stat-tile.navy { border-color: var(--navy); }
   .stat-tile.gold { border-color: var(--gold); }
-  .stat-tile.teal  { border-color: #00b8d4; }
-  .stat-tile.orange{ border-color: #f5a623; }
+  .stat-tile.teal  { border-color: var(--teal); }
+  .stat-tile.sage  { border-color: var(--sage); }
   .stat-label { font-size: .72rem; color: var(--grey-800); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
   .stat-value { font-size: 1.9rem; font-weight: 800; color: var(--navy); line-height: 1.1; }
   .stat-sub { font-size: .75rem; color: var(--grey-800); }
@@ -448,18 +452,6 @@
   .dp-table .funding-cell { font-weight: 800; color: var(--navy); font-size: .9rem; white-space: nowrap; }
   .dp-table .name-cell { font-weight: 700; }
   .dp-table .chains-cell { max-width: 350px; }
-  .funding-bar {
-    height: 8px;
-    border-radius: 4px;
-    background: var(--gold);
-    min-width: 2px;
-  }
-  .funding-bar-bg {
-    height: 8px;
-    border-radius: 4px;
-    background: var(--grey-100);
-    width: 100%;
-  }
 
   /* ─── RESEARCH TABLE ─────────────────────────────────────── */
   .station-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--grey-100); }
@@ -652,7 +644,7 @@
           <div class="stat-value">49</div>
           <div class="stat-sub">Across all DPs (2026)</div>
         </div>
-        <div class="stat-tile orange">
+        <div class="stat-tile sage">
           <div class="stat-label">Value Chains</div>
           <div class="stat-value">31</div>
           <div class="stat-sub">Distinct commodities</div>
@@ -1060,7 +1052,8 @@ const DATA = {
 ═══════════════════════════════════════════════════════════════ */
 const NAVY  = '#0d2136';
 const GOLD  = '#a8935a';
-const GOLD_DK = '#8c7a4a';
+const TEAL  = '#004551';
+const SAGE  = '#81845a';
 const AXIS_COLOR = '#333840';
 
 // Navy shades from darkest to lighter for treemap
@@ -1166,7 +1159,7 @@ document.getElementById('overlay').addEventListener('click', closeSidebar);
 function freqColor(f) {
   if (f >= 3) return NAVY;
   if (f >= 2) return GOLD;
-  if (f >= 1) return '#c49b4a';
+  if (f >= 1) return SAGE;
   return '#c8d0db';
 }
 
@@ -1237,7 +1230,6 @@ function buildTreemap() {
 function buildOverview() {
   const isMobile = window.innerWidth <= 768;
 
-  // Funding bar - sorted highest to lowest
   const sorted = [...DATA.partners].sort((a,b) => b.funding - a.funding);
   const maxFunding = sorted[0].funding;
   const yMaxFunding = Math.ceil(maxFunding / 100) * 100 + 100;
@@ -1278,7 +1270,6 @@ function buildOverview() {
     }
   });
 
-  // Projects bar - sorted highest to lowest
   const psorted = [...DATA.partners].sort((a,b) => b.projects - a.projects);
   const maxProjects = psorted[0].projects;
   const yMaxProjects = maxProjects + 2;
@@ -1318,7 +1309,6 @@ function buildOverview() {
     }
   });
 
-  // Top chains
   const projChainsSorted = [...DATA.densityProjects].sort((a,b) => b.val - a.val).slice(0,10);
   renderBarList('topChainsProjects',
     projChainsSorted.map(d=>({...d,label:d.vc})),
@@ -1331,18 +1321,16 @@ function buildOverview() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   DP PORTFOLIO PAGE
+   DP PORTFOLIO PAGE (NO BARS)
 ═══════════════════════════════════════════════════════════════ */
 function buildPortfolio() {
   const tbody = document.getElementById('dpTableBody');
   const sorted = [...DATA.partners].sort((a,b) => b.funding - a.funding);
   const totalFunding = sorted.reduce((s, p) => s + p.funding, 0);
-  const maxFunding = sorted[0].funding;
 
   tbody.innerHTML = sorted.map((p, idx) => {
     const chainArr = p.chains.split(', ');
     const share = ((p.funding / totalFunding) * 100).toFixed(1);
-    const barWidth = (p.funding / maxFunding * 100);
     return `
       <tr>
         <td class="rank-cell"><span class="rank-num ${idx < 3 ? 'top3' : ''}">${idx + 1}</span></td>
@@ -1352,11 +1340,8 @@ function buildPortfolio() {
         <td class="num" style="font-weight:600">${p.projects}</td>
         <td class="num" style="font-weight:600">${p.chainCount}</td>
         <td class="chains-cell">
-          <div class="pill-wrap" style="margin-bottom:4px">
+          <div class="pill-wrap">
             ${chainArr.map(c=>`<span class="pill navy">${c.trim()}</span>`).join('')}
-          </div>
-          <div class="funding-bar-bg">
-            <div class="funding-bar" style="width:${barWidth}%"></div>
           </div>
         </td>
       </tr>`;
