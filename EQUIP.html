@@ -29,6 +29,7 @@
     --grey-800:#2c3a47;
     --text:   #1a2633;
     --axis-color: #333840;
+    --bg:     #d3d6d9;
 
     --radius: 12px;
     --radius-sm: 8px;
@@ -45,7 +46,7 @@
   html { font-size: 15px; }
   body {
     font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--grey-50);
+    background: var(--bg);
     color: var(--text);
     line-height: 1.55;
   }
@@ -164,7 +165,7 @@
     top: 0; left: var(--sidebar-w); right: 0;
     height: var(--header-h);
     background: var(--white);
-    border-bottom: 1px solid var(--grey-100);
+    border-bottom: 1px solid var(--grey-300);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -183,7 +184,7 @@
     color: var(--navy);
     transition: background var(--transition);
   }
-  #menu-btn:hover { background: var(--grey-100); }
+  #menu-btn:hover { background: var(--grey-300); }
   #page-title { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
 
   .topbar-right { display: flex; align-items: center; gap: 8px; }
@@ -197,8 +198,8 @@
     border-radius: 20px;
     letter-spacing: .02em;
   }
-  .badge-navy { background: var(--navy-lt); color: var(--navy); }
-  .badge-gold { background: var(--gold-lt); color: var(--gold-dk); }
+  .badge-navy { background: var(--navy); color: #fff; }
+  .badge-gold { background: var(--gold); color: #fff; }
 
   /* main */
   #main {
@@ -229,7 +230,7 @@
     border-radius: var(--radius);
     box-shadow: var(--shadow-card);
     padding: 20px 22px;
-    border: 1px solid var(--grey-100);
+    border: 1px solid var(--grey-300);
   }
   .card-title {
     font-size: .78rem;
@@ -249,11 +250,12 @@
     font-size: .7rem;
     font-weight: 600;
     color: var(--grey-800);
-    background: var(--gold-lt);
+    background: var(--white);
     padding: 5px 12px;
     border-radius: 6px;
     margin-bottom: 16px;
     border-left: 3px solid var(--gold);
+    border: 1px solid var(--grey-300);
   }
   .data-source svg { flex-shrink: 0; }
 
@@ -265,23 +267,22 @@
     margin-bottom: 24px;
   }
   .stat-tile {
-    background: var(--white);
     border-radius: var(--radius);
     box-shadow: var(--shadow-card);
     padding: 18px 20px;
-    border-left: 4px solid transparent;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    border: 1px solid var(--grey-100);
+    border: none;
+    color: #fff;
   }
-  .stat-tile.navy { border-color: var(--navy); }
-  .stat-tile.gold { border-color: var(--gold); }
-  .stat-tile.teal  { border-color: var(--teal); }
-  .stat-tile.sage  { border-color: var(--sage); }
-  .stat-label { font-size: .72rem; color: var(--grey-800); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
-  .stat-value { font-size: 1.9rem; font-weight: 800; color: var(--navy); line-height: 1.1; }
-  .stat-sub { font-size: .75rem; color: var(--grey-800); }
+  .stat-tile.navy { background: var(--navy); }
+  .stat-tile.gold { background: var(--gold); }
+  .stat-tile.teal { background: var(--teal); }
+  .stat-tile.sage { background: var(--sage); }
+  .stat-label { font-size: .72rem; color: rgba(255,255,255,.80); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1.1; }
+  .stat-sub { font-size: .75rem; color: rgba(255,255,255,.70); }
 
   /* ─── GRID LAYOUTS ───────────────────────────────────────── */
   .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px; }
@@ -301,17 +302,17 @@
     text-transform: uppercase;
     letter-spacing: .06em;
     color: var(--grey-800);
-    border-bottom: 2px solid var(--grey-100);
+    border-bottom: 2px solid var(--grey-300);
     white-space: nowrap;
   }
   tbody td {
     padding: 10px 12px;
-    border-bottom: 1px solid var(--grey-100);
+    border-bottom: 1px solid var(--grey-300);
     vertical-align: middle;
     color: var(--text);
   }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--grey-50); }
+  tbody tr:hover td { background: rgba(0,0,0,.03); }
   .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
   .rank-num {
     width: 26px; height: 26px;
@@ -326,7 +327,7 @@
   /* ─── PROGRESS BARS ──────────────────────────────────────── */
   .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: .8rem; }
   .bar-label { flex: 0 0 140px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar-track { flex: 1; background: var(--grey-100); border-radius: 6px; height: 8px; overflow: hidden; }
+  .bar-track { flex: 1; background: var(--bg); border-radius: 6px; height: 8px; overflow: hidden; }
   .bar-fill  { height: 100%; border-radius: 6px; transition: width .5s ease; }
   .bar-num   { flex: 0 0 30px; text-align: right; font-weight: 700; color: var(--grey-800); }
 
@@ -337,7 +338,7 @@
     font-weight: 600;
     padding: 3px 10px;
     border-radius: 20px;
-    background: var(--grey-100);
+    background: var(--bg);
     color: var(--grey-800);
     white-space: nowrap;
   }
@@ -403,7 +404,7 @@
     border-radius: var(--radius-sm);
     overflow: hidden;
     position: relative;
-    border: 1px solid var(--grey-100);
+    border: 1px solid var(--grey-300);
   }
   .treemap-cell {
     display: flex;
@@ -437,29 +438,30 @@
     text-transform: uppercase;
     letter-spacing: .06em;
     color: var(--grey-800);
-    border-bottom: 2px solid var(--grey-100);
+    border-bottom: 2px solid var(--grey-300);
     white-space: nowrap;
-    background: var(--grey-50);
+    background: var(--bg);
   }
   .dp-table tbody td {
     padding: 12px 14px;
-    border-bottom: 1px solid var(--grey-100);
+    border-bottom: 1px solid var(--grey-300);
     vertical-align: middle;
     color: var(--text);
   }
-  .dp-table tbody tr:hover td { background: var(--gold-lt); }
+  .dp-table tbody tr:hover td { background: rgba(0,0,0,.03); }
   .dp-table .rank-cell { width: 50px; text-align: center; }
   .dp-table .funding-cell { font-weight: 800; color: var(--navy); font-size: .9rem; white-space: nowrap; }
   .dp-table .name-cell { font-weight: 700; }
   .dp-table .chains-cell { max-width: 350px; }
 
   /* ─── RESEARCH TABLE ─────────────────────────────────────── */
-  .station-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--grey-100); }
+  .station-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--grey-300); }
   .station-row:last-child { border-bottom: none; }
   .station-icon {
     width: 36px; height: 36px;
     border-radius: var(--radius-sm);
-    background: var(--navy-lt);
+    background: var(--navy);
+    color: #fff;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     font-size: 1rem;
@@ -470,13 +472,13 @@
   /* ─── PMU FUNCTIONS ──────────────────────────────────────── */
   .pmu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
   .pmu-item {
-    background: var(--grey-50);
+    background: var(--white);
     border-radius: var(--radius-sm);
     padding: 14px;
     display: flex;
     gap: 10px;
     align-items: flex-start;
-    border: 1px solid var(--grey-100);
+    border: 1px solid var(--grey-300);
   }
   .pmu-num {
     width: 28px; height: 28px;
@@ -496,7 +498,7 @@
     gap: 12px;
     align-items: flex-start;
     padding: 10px 0;
-    border-bottom: 1px solid var(--grey-100);
+    border-bottom: 1px solid var(--grey-300);
   }
   .policy-item:last-child { border-bottom: none; }
   .policy-stars {
@@ -507,7 +509,7 @@
   }
   .star { width: 10px; height: 10px; border-radius: 50%; }
   .star.filled { background: var(--gold); }
-  .star.empty  { background: #d0d5dd; }
+  .star.empty  { background: #c8ccd1; }
   .policy-text { font-size: .83rem; font-weight: 500; color: var(--text); }
 
   /* ─── MOBILE ─────────────────────────────────────────────── */
@@ -627,7 +629,7 @@
         <p>Donor Committee on Agriculture and Food Security — 2026 Investment Snapshot, Malawi</p>
       </div>
 
-      <!-- Stat tiles -->
+      <!-- Stat tiles - now solid colored with white text -->
       <div class="stat-grid">
         <div class="stat-tile navy">
           <div class="stat-label">Total Funding</div>
@@ -1262,7 +1264,7 @@ function buildOverview() {
           ticks:{maxRotation:45, font:{size:9, weight:'600'}, color: AXIS_COLOR} 
         },
         y: { 
-          grid:{color:'#eef1f5'}, 
+          grid:{color:'#c8ccd1'}, 
           max: yMaxFunding,
           ticks:{callback:v=>'$'+v+'M', color: AXIS_COLOR, font:{weight:'600'}} 
         }
@@ -1301,7 +1303,7 @@ function buildOverview() {
           ticks:{maxRotation:45, font:{size:9, weight:'600'}, color: AXIS_COLOR}
         }, 
         y:{
-          grid:{color:'#eef1f5'},
+          grid:{color:'#c8ccd1'},
           max: yMaxProjects,
           ticks:{stepSize:1, color: AXIS_COLOR, font:{weight:'600'}}
         } 
@@ -1398,7 +1400,7 @@ function buildValueChains() {
       },
       scales: { 
         x: {
-          grid:{color:'#eef1f5'},
+          grid:{color:'#c8ccd1'},
           max: maxProj + 2,
           ticks: {color: AXIS_COLOR, font:{weight:'600'}}
         }, 
@@ -1437,7 +1439,7 @@ function buildValueChains() {
       },
       scales: { 
         x: {
-          grid:{color:'#eef1f5'},
+          grid:{color:'#c8ccd1'},
           max: maxDon + 2,
           ticks: {color: AXIS_COLOR, font:{weight:'600'}}
         }, 
@@ -1512,7 +1514,7 @@ function buildOverlap() {
           ticks: {color: AXIS_COLOR, font:{weight:'600'}}
         }, 
         y: {
-          grid:{color:'#eef1f5'},
+          grid:{color:'#c8ccd1'},
           max: maxVal + 2,
           beginAtZero:true,
           ticks: {color: AXIS_COLOR, font:{weight:'600'}}
@@ -1582,7 +1584,7 @@ function buildThematic() {
       },
       scales: { 
         x: {
-          grid:{color:'#eef1f5'},
+          grid:{color:'#c8ccd1'},
           max: maxFreq + 1,
           ticks:{stepSize:1, color: AXIS_COLOR, font:{weight:'600'}}
         }, 
