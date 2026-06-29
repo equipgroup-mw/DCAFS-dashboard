@@ -1,23 +1,39 @@
 {
-  "name": "DCAFS Data",
+  "name": "DCAFS Dashboard - Malawi 2026",
   "short_name": "DCAFS Data",
-  "description": "Dashboards for the Donor Committee on Agriculture and Food Security",
+  "description": "Donor Committee on Agriculture and Food Security - Investment & Coordination Data",
+  "id": "dcafs-malawi-2026",
   "orientation": "portrait",
   "scope": "/",
-  "start_url": "/DCASFS-dashboard/",
+  "start_url": "/DCAFS-dashboard/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0d2136",
   "theme_color": "#0d2136",
+  "categories": ["business", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "DCAFS.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "DCAFS.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "DCAFS.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "DCAFS Dashboard Home Screen"
     }
   ]
 }
