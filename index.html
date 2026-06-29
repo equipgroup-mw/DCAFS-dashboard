@@ -489,6 +489,22 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* ─── LOADING STATE ──────────────────────────────────────── */
+  .pwa-install-btn.installing {
+    animation: none;
+    background: var(--gold-dk);
+    pointer-events: none;
+  }
+  
+  .pwa-install-btn.installing svg {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
   /* ─── MOBILE ─────────────────────────────────────────────── */
   @media (max-width: 700px) {
     .landing-container {
@@ -600,7 +616,7 @@
 
   <!-- Install Tooltip -->
   <div id="installTooltip" class="install-tooltip">
-    💾 Install for offline access
+    💾 Tap to install DCAFS Dashboard
   </div>
 
   <!-- Main Content -->
@@ -745,13 +761,73 @@
         
         // Show tooltip after a delay
         setTimeout(() => {
-          if (!isAppInstalled() && !deferredPrompt) {
+          if (!isAppInstalled() && deferredPrompt) {
             installTooltip.classList.add('visible');
             setTimeout(() => {
               installTooltip.classList.remove('visible');
             }, 4000);
           }
         }, 3000);
+      }
+    }
+
+    // Direct install function
+    async function triggerInstallation() {
+      console.log('🖱️ DCAFS install button clicked - initiating installation...');
+      
+      // Remove tooltip immediately
+      installTooltip.classList.remove('visible');
+      
+      // Add installing state for visual feedback
+      installBtn.classList.add('installing');
+      
+      try {
+        if (deferredPrompt) {
+          // Show the native install prompt
+          await deferredPrompt.prompt();
+          
+          // Wait for the user to respond
+          const { outcome } = await deferredPrompt.userChoice;
+          
+          console.log(`📱 User ${outcome} the DCAFS installation`);
+          
+          // Clear the deferredPrompt
+          deferredPrompt = null;
+          
+          if (outcome === 'accepted') {
+            // Installation successful
+            localStorage.setItem(PWA_UNIQUE_ID, 'installed');
+            installBtn.classList.add('hidden');
+            console.log('🎉 DCAFS PWA installed successfully!');
+          } else {
+            // User declined - keep button visible
+            installBtn.classList.remove('installing');
+            console.log('ℹ️ User declined installation - button remains visible');
+          }
+        } else {
+          // No deferred prompt available - PWA might not meet install criteria
+          console.log('⚠️ No install prompt available');
+          
+          // Try alternative approach: force add to home screen for iOS
+          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            // iOS doesn't support beforeinstallprompt, show instructions
+            alert('To install DCAFS Dashboard on iOS:\n\n1. Tap the Share button (📤) in Safari\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to confirm');
+          } else if (/Android/.test(navigator.userAgent)) {
+            // Android fallback
+            alert('To install DCAFS Dashboard:\n\n1. Tap the menu button (⋮) in your browser\n2. Tap "Install app" or "Add to Home Screen"\n3. Follow the on-screen prompts');
+          } else {
+            // Desktop
+            alert('To install DCAFS Dashboard:\n\nLook for the install icon (⊕) in your browser\'s address bar and click it');
+          }
+          
+          installBtn.classList.remove('installing');
+        }
+      } catch (error) {
+        console.error('❌ Installation failed:', error);
+        installBtn.classList.remove('installing');
+        
+        // Show error message
+        alert('Unable to install the app right now. Please try again or use the manual install method from your browser menu.');
       }
     }
 
@@ -764,63 +840,25 @@
       // Show the install button
       showInstallButton();
       
-      console.log('💡 DCAFS PWA install prompt available');
+      console.log('💡 DCAFS PWA install prompt captured and ready');
     });
 
-    // Handle install button click
-    installBtn.addEventListener('click', async () => {
-      console.log('🖱️ DCAFS install button clicked');
-      
-      if (!deferredPrompt) {
-        // If no deferred prompt, provide manual instructions
-        const platform = /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'iOS' : 
-                        /Android/.test(navigator.userAgent) ? 'Android' : 'Desktop';
-        
-        const instructions = {
-          'iOS': 'To install DCAFS Dashboard:\n\n1. Tap the Share button (📤)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to confirm',
-          'Android': 'To install DCAFS Dashboard:\n\n1. Tap the menu button (⋮)\n2. Tap "Install app" or "Add to Home Screen"\n3. Follow the on-screen prompts',
-          'Desktop': 'To install DCAFS Dashboard:\n\nLook for the install icon (⊕) in the address bar and click it'
-        };
-        
-        alert(instructions[platform]);
-        installTooltip.classList.remove('visible');
-        return;
-      }
-
-      // Show the install prompt
-      deferredPrompt.prompt();
-      
-      // Wait for the user to respond to the prompt
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      console.log(`User ${outcome} the DCAFS installation`);
-      
-      // Clear the deferredPrompt variable
-      deferredPrompt = null;
-      
-      // Hide the install button and tooltip
-      installBtn.classList.add('hidden');
-      installTooltip.classList.remove('visible');
-      
-      // Mark as installed for this specific PWA
-      if (outcome === 'accepted') {
-        localStorage.setItem(PWA_UNIQUE_ID, 'installed');
-        console.log('🎉 DCAFS PWA installed successfully!');
-      }
-    });
+    // Handle install button click - DIRECT INSTALL
+    installBtn.addEventListener('click', triggerInstallation);
 
     // Listen for successful installation
     window.addEventListener('appinstalled', () => {
-      console.log('✅ DCAFS PWA installed successfully');
+      console.log('✅ DCAFS PWA installed successfully (event)');
       localStorage.setItem(PWA_UNIQUE_ID, 'installed');
       installBtn.classList.add('hidden');
+      installBtn.classList.remove('installing');
       installTooltip.classList.remove('visible');
       deferredPrompt = null;
     });
 
-    // Show tooltip on hover
+    // Show tooltip on hover only if install is available
     installBtn.addEventListener('mouseenter', () => {
-      if (deferredPrompt) {
+      if (deferredPrompt || !isAppInstalled()) {
         installTooltip.classList.add('visible');
       }
     });
@@ -834,7 +872,9 @@
       console.log('🔍 DCAFS PWA Status:', {
         uniqueId: PWA_UNIQUE_ID,
         installed: isAppInstalled(),
-        hasDeferredPrompt: !!deferredPrompt
+        hasDeferredPrompt: !!deferredPrompt,
+        platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'iOS' : 
+                 /Android/.test(navigator.userAgent) ? 'Android' : 'Desktop'
       });
       
       // If app is already installed, hide the button
@@ -842,12 +882,22 @@
         installBtn.classList.add('hidden');
         console.log('📱 DCAFS app already installed - hiding button');
       } else {
-        // Show button after a delay if no prompt event
-        setTimeout(() => {
-          if (!deferredPrompt && !isAppInstalled()) {
-            showInstallButton();
-          }
-        }, 2000);
+        // Show button immediately if we already have the prompt
+        if (deferredPrompt) {
+          showInstallButton();
+        } else {
+          // Wait a bit for the beforeinstallprompt event
+          setTimeout(() => {
+            if (deferredPrompt) {
+              showInstallButton();
+            } else if (!isAppInstalled()) {
+              // Even without deferredPrompt, show the button
+              // It will provide manual instructions as fallback
+              showInstallButton();
+              console.log('ℹ️ No install prompt yet, but showing button with fallback');
+            }
+          }, 2000);
+        }
       }
     });
 
@@ -943,15 +993,20 @@
           window.location.href = 'DCAFS.html';
         } else if (e.key === '2' || e.key === 'e' || e.key === 'E') {
           window.location.href = 'EQUIP.html';
+        } else if (e.key === 'i' || e.key === 'I') {
+          // Press 'I' to trigger installation
+          if (!installBtn.classList.contains('hidden')) {
+            triggerInstallation();
+          }
         }
       });
 
       console.log('%c DCAFS Dashboard Landing %c v2.0 ',
         'background:#0d2136;color:#fff;padding:6px 10px;border-radius:4px 0 0 4px;font-weight:bold;',
         'background:#a8935a;color:#fff;padding:6px 10px;border-radius:0 4px 4px 0;');
-      console.log('%c Press 1 or D for DCAFS | Press 2 or E for EQUIP',
+      console.log('%c Press 1 or D for DCAFS | Press 2 or E for EQUIP | Press I to Install',
         'color:#a8935a;font-style:italic;');
-      console.log('%c 💡 Install this app for offline access!',
+      console.log('%c 💡 Tap the glowing gold button to install this app!',
         'color:#a8935a;font-weight:bold;');
       console.log('%c 🔧 To reset PWA state, type: resetPWAState()',
         'color:#ff6b6b;font-style:italic;');
