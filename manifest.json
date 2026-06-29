@@ -1,0 +1,23 @@
+{
+  "name": "DCAFS Data",
+  "short_name": "DCAFS Data",
+  "description": "Dashboards for the Donor Committee on Agriculture and Food Security",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/?utm_source=web_app_manifest",
+  "display": "standalone",
+  "background_color": "#0d2136",
+  "theme_color": "#0d2136",
+  "icons": [
+    {
+      "src": "DCAFS.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "DCAFS.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
