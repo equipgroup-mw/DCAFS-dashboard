@@ -16,13 +16,13 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "DCAFS.png",
+      "src": "/DCAFS-dashboard/DCAFS.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "DCAFS.png",
+      "src": "/DCAFS-dashboard/DCAFS.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -30,7 +30,7 @@
   ],
   "screenshots": [
     {
-      "src": "DCAFS.png",
+      "src": "/DCAFS-dashboard/DCAFS.png",
       "sizes": "512x512",
       "type": "image/png",
       "label": "DCAFS Dashboard Home Screen"
