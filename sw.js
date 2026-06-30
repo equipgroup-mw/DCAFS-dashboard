@@ -1,4 +1,5 @@
 // Unique identifier for this specific PWA
+const SCOPE = '/DCAFS-dashboard';
 const CACHE_NAME = 'dcafs-dashboard-v2.0.0';
 const UNIQUE_ID = 'dcafs-malawi-2026';
 
@@ -10,14 +11,14 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       console.log('📦 DCAFS Service Worker: Caching app shell');
       return cache.addAll([
-        '/',
-        '/index.html',
-        '/DCAFS.html',
-        '/EQUIP.html',
-        '/manifest.json',
-        '/DCAFS.png',
-        '/EQUIP.png',
-        '/EquipLogo.png'
+        SCOPE + '/',
+        SCOPE + '/index.html',
+        SCOPE + '/DCAFS.html',
+        SCOPE + '/EQUIP.html',
+        SCOPE + '/manifest.json',
+        SCOPE + '/DCAFS.png',
+        SCOPE + '/EQUIP.png',
+        SCOPE + '/EquipLogo.png'
       ]);
     }).then(() => {
       console.log('✅ DCAFS Service Worker: Installation complete');
@@ -56,6 +57,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+  
+  // CRITICAL: Only handle requests within /DCAFS-dashboard/ scope
+  // This prevents interference with other apps on the same domain
+  if (!url.pathname.startsWith(SCOPE)) {
+    return; // Let other service workers handle requests outside our scope
+  }
   
   // Skip non-GET requests
   if (request.method !== 'GET') return;
@@ -134,5 +141,6 @@ self.addEventListener('message', (event) => {
 
 console.log('🎯 DCAFS Service Worker loaded:', {
   cache: CACHE_NAME,
-  id: UNIQUE_ID
+  id: UNIQUE_ID,
+  scope: SCOPE
 });
