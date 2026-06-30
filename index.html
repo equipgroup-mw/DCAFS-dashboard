@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DCAFS Dashboard — Select Version</title>
-<link rel="manifest" href="manifest.json">
-<link rel="shortcut icon" href="DCAFS.png" type="image/png">
+<link rel="manifest" href="/DCAFS-dashboard/manifest.json">
+<link rel="shortcut icon" href="/DCAFS-dashboard/DCAFS.png" type="image/png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DCAFS Data">
@@ -626,7 +626,7 @@
     <div class="landing-header">
       <div class="powered-by">
         <span>Powered by</span>
-        <img src="EQUIP.png" alt="EQUIP Logo" 
+        <img src="/DCAFS-dashboard/EQUIP.png" alt="EQUIP Logo" 
              onerror="this.style.display='none'; this.previousElementSibling.textContent='';"/>
       </div>
       <h1 class="landing-title">
@@ -648,10 +648,10 @@
     <!-- Logo Cards -->
     <div class="logo-cards">
       <!-- DCAFS Card -->
-      <a href="DCAFS.html" class="logo-card" title="Open DCAFS Dashboard">
+      <a href="/DCAFS-dashboard/DCAFS.html" class="logo-card" title="Open DCAFS Dashboard">
         <div class="shimmer"></div>
         <img 
-          src="DCAFS.png" 
+          src="/DCAFS-dashboard/DCAFS.png" 
           alt="DCAFS Logo" 
           class="logo-card-image"
           onerror="this.style.display='none'; this.parentElement.querySelector('.logo-card-fallback').style.display='flex';"
@@ -664,10 +664,10 @@
       </a>
 
       <!-- EQUIP Card -->
-      <a href="EQUIP.html" class="logo-card" title="Open EQUIP Dashboard">
+      <a href="/DCAFS-dashboard/EQUIP.html" class="logo-card" title="Open EQUIP Dashboard">
         <div class="shimmer"></div>
         <img 
-          src="EQUIP.png" 
+          src="/DCAFS-dashboard/EQUIP.png" 
           alt="EQUIP Logo" 
           class="logo-card-image"
           onerror="this.style.display='none'; this.parentElement.querySelector('.logo-card-fallback').style.display='flex';"
@@ -705,6 +705,7 @@
   <script>
     // ─── UNIQUE PWA IDENTIFIER ───────────────────────────────
     const PWA_UNIQUE_ID = 'dcafs-dashboard-v2-' + window.location.hostname;
+    const APP_SCOPE = '/DCAFS-dashboard/';
     
     // ─── PWA INSTALL LOGIC ───────────────────────────────────
     let deferredPrompt;
@@ -901,7 +902,7 @@
       }
     });
 
-    // ─── ENHANCED SERVICE WORKER REGISTRATION ──────────────────
+    // ─── ENHANCED SERVICE WORKER REGISTRATION (FIXED SCOPE) ───
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
@@ -909,23 +910,17 @@
           const registrations = await navigator.serviceWorker.getRegistrations();
           
           for (let registration of registrations) {
-            const sw = registration.active || registration.waiting || registration.installing;
-            if (sw) {
-              // Check if this is our service worker
-              const isOurSW = sw.scriptURL.includes('sw.js') && 
-                              registration.scope.includes(window.location.hostname);
-              
-              if (!isOurSW) {
-                console.log('🗑️ Unregistering foreign service worker:', {
-                  scope: registration.scope,
-                  script: sw.scriptURL
-                });
-                await registration.unregister();
-              }
+            // Check if this is NOT our service worker scope
+            if (!registration.scope.includes('/DCAFS-dashboard')) {
+              console.log('🗑️ Unregistering foreign service worker:', {
+                scope: registration.scope,
+                script: registration.active?.scriptURL
+              });
+              await registration.unregister();
             }
           }
           
-          // Clear old caches that might conflict
+          // Clear old caches that might conflict (but keep ours)
           const cacheNames = await caches.keys();
           for (let cacheName of cacheNames) {
             if (!cacheName.startsWith('dcafs-dashboard-')) {
@@ -936,9 +931,9 @@
           
           console.log('✅ Cleaned up foreign service workers and caches');
           
-          // Register our service worker
-          const registration = await navigator.serviceWorker.register('sw.js', {
-            scope: '/',
+          // Register our service worker with CORRECT SCOPE
+          const registration = await navigator.serviceWorker.register(APP_SCOPE + 'sw.js', {
+            scope: APP_SCOPE,
             updateViaCache: 'none' // Always fetch fresh version
           });
           
@@ -987,12 +982,12 @@
         });
       });
 
-      // Keyboard support
+      // Keyboard support - UPDATED WITH ABSOLUTE PATHS
       document.addEventListener('keydown', (e) => {
         if (e.key === '1' || e.key === 'd' || e.key === 'D') {
-          window.location.href = 'DCAFS.html';
+          window.location.href = APP_SCOPE + 'DCAFS.html';
         } else if (e.key === '2' || e.key === 'e' || e.key === 'E') {
-          window.location.href = 'EQUIP.html';
+          window.location.href = APP_SCOPE + 'EQUIP.html';
         } else if (e.key === 'i' || e.key === 'I') {
           // Press 'I' to trigger installation
           if (!installBtn.classList.contains('hidden')) {
@@ -1001,9 +996,10 @@
         }
       });
 
-      console.log('%c DCAFS Dashboard Landing %c v2.0 ',
+      console.log('%c DCAFS Dashboard Landing %c v2.0 %c Scope: ' + APP_SCOPE,
         'background:#0d2136;color:#fff;padding:6px 10px;border-radius:4px 0 0 4px;font-weight:bold;',
-        'background:#a8935a;color:#fff;padding:6px 10px;border-radius:0 4px 4px 0;');
+        'background:#a8935a;color:#fff;padding:6px 10px;border-radius:0 4px 4px 0;',
+        'color:#a8935a;font-style:italic;');
       console.log('%c Press 1 or D for DCAFS | Press 2 or E for EQUIP | Press I to Install',
         'color:#a8935a;font-style:italic;');
       console.log('%c 💡 Tap the glowing gold button to install this app!',
