@@ -355,7 +355,6 @@
   function distColor(count){ return count ? colorInterp(Math.sqrt(count/maxCount)) : '#f0f2ff'; }
   function labelColor(count){
     const t = Math.sqrt((count||0)/maxCount);
-    // Returns white text for darker shades, and dark text for lighter shades
     return t > 0.45 ? 'rgba(255,255,255,0.95)' : 'rgba(13,31,53,0.75)';
   }
 
@@ -442,27 +441,27 @@
     const padX=22;
     const barW=PW-padX*2;
 
+    // Hardcoded Total Projects as requested
     ctx.fillStyle=SUB;
     ctx.font=`600 9px ${F}`;
     ctx.textAlign='left';
     ctx.fillText('TOTAL PROJECTS',padX,92);
     ctx.fillStyle=INK;
     ctx.font=`800 52px ${F}`;
-    ctx.fillText(DATA.reduce((s,d)=>s+d.projects,0),padX,142);
+    ctx.fillText('71',padX,142);
 
     divider(ctx,156,PW);
 
     let y=175;
     const rowH=58;
-    const totalBudget = DATA.reduce((s,d) => s + parseFloat(d.budget.replace(/[^0-9.]/g, '')), 0);
-    const totalChains = [...new Set(DATA.flatMap(d => d.chains.split(',')))].length;
 
+    // Hardcoded Total Allocated Budget as requested
     ctx.fillStyle=SUB;
     ctx.font=`600 9px ${F}`;
     ctx.fillText('TOTAL ALLOCATED BUDGET',padX,y-4);
     ctx.fillStyle=INK;
     ctx.font=`700 22px ${F}`;
-    ctx.fillText(`$${totalBudget.toFixed(1)}M`,padX,y+18);
+    ctx.fillText('$294.11M',padX,y+18);
     y+=rowH;
 
     divider(ctx,y,PW); y+=16;
