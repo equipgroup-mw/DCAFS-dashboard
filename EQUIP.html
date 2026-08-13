@@ -5,14 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="manifest" href="manifest.json">
 <meta name="shortcut icon" href="DCAFS.png" type="image/png">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DCAFS Data">
 <title>DCAFS Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js">
-</script>
+<link rel="icon" href="data:,">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
   /* ─── TOKENS ─────────────────────────────────────────────── */
   :root {
@@ -83,24 +82,9 @@
     border-radius: var(--radius-sm);
     border: 1.5px solid var(--navy);
   }
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .sidebar-logo img { 
-    height: 36px; 
-    width: auto; 
-    object-fit: contain; 
-    border-radius: 6px;
-  }
-  .sidebar-logo-text { 
-    font-size: .76rem; 
-    color: var(--navy); 
-    font-weight: 600; 
-    letter-spacing: .02em; 
-    line-height: 1.3; 
-  }
+  .sidebar-logo { display: flex; align-items: center; gap: 12px; }
+  .sidebar-logo img { height: 36px; width: auto; object-fit: contain; border-radius: 6px; }
+  .sidebar-logo-text { font-size: .76rem; color: var(--navy); font-weight: 600; letter-spacing: .02em; line-height: 1.3; }
 
   .sidebar-powered {
     padding: 8px 16px 4px;
@@ -110,39 +94,17 @@
     border-bottom: 1px solid rgba(255,255,255,.1);
     margin-bottom: 8px;
   }
-  .sidebar-powered span {
-    font-size: .62rem;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: rgba(255,255,255,.45);
-    font-weight: 600;
-  }
-  .sidebar-powered img {
-    height: 42px;
-    width: auto;
-    object-fit: contain;
-    border-radius: 4px;
-    opacity: 0.85;
-  }
+  .sidebar-powered span { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.45); font-weight: 600; }
+  .sidebar-powered img { height: 42px; width: auto; object-fit: contain; border-radius: 4px; opacity: 0.85; }
 
   nav { flex: 1; padding: 12px 0; overflow-y: auto; }
   .nav-section { margin-bottom: 4px; }
-  .nav-label {
-    font-size: .66rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,.35);
-    padding: 10px 20px 4px;
-  }
+  .nav-label { font-size: .66rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.35); padding: 10px 20px 4px; }
   .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     padding: 10px 20px;
     color: rgba(255,255,255,.72);
-    font-size: .875rem;
-    font-weight: 500;
+    font-size: .875rem; font-weight: 500;
     border-radius: 0;
     transition: background var(--transition), color var(--transition);
     cursor: pointer;
@@ -150,30 +112,18 @@
     border-radius: var(--radius-sm);
   }
   .nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
-  .nav-item.active { 
-    background: var(--gold); 
-    color: #fff; 
-    font-weight: 600;
-  }
+  .nav-item.active { background: var(--gold); color: #fff; font-weight: 600; }
   .nav-item svg { flex-shrink: 0; opacity: .8; }
 
-  .sidebar-footer {
-    padding: 14px 20px;
-    border-top: 1px solid rgba(255,255,255,.1);
-    font-size: .72rem;
-    color: rgba(255,255,255,.38);
-  }
+  .sidebar-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.1); font-size: .72rem; color: rgba(255,255,255,.38); }
 
   /* topbar */
   #topbar {
-    position: fixed;
-    top: 0; left: var(--sidebar-w); right: 0;
+    position: fixed; top: 0; left: var(--sidebar-w); right: 0;
     height: var(--header-h);
     background: var(--white);
     border-bottom: 1px solid var(--grey-300);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 0 24px;
     z-index: 100;
     transition: left var(--transition);
@@ -183,33 +133,25 @@
 
   .topbar-left { display: flex; align-items: center; gap: 14px; }
   #menu-btn {
-    width: 36px; height: 36px;
-    border-radius: var(--radius-sm);
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
     display: flex; align-items: center; justify-content: center;
-    color: var(--navy);
-    transition: background var(--transition);
+    color: var(--navy); transition: background var(--transition);
   }
   #menu-btn:hover { background: var(--grey-300); }
   #page-title { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
 
   .topbar-right { display: flex; align-items: center; gap: 8px; }
   .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: .72rem;
-    font-weight: 600;
-    padding: 5px 12px;
-    border-radius: 20px;
-    letter-spacing: .02em;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: .72rem; font-weight: 600; padding: 5px 12px;
+    border-radius: 20px; letter-spacing: .02em;
   }
   .badge-navy { background: var(--navy); color: #fff; }
   .badge-gold { background: var(--gold); color: #fff; }
 
   /* main */
   #main {
-    flex: 1;
-    margin-left: var(--sidebar-w);
+    flex: 1; margin-left: var(--sidebar-w);
     padding-top: var(--header-h);
     transition: margin-left var(--transition);
     min-width: 0;
@@ -220,67 +162,20 @@
   .page.active { display: block; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
-  /* overlay (mobile) */
-  #overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.4);
-    z-index: 150;
-  }
+  #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 150; }
   #overlay.visible { display: block; }
 
   /* ─── CARDS ──────────────────────────────────────────────── */
-  .card {
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-card);
-    padding: 20px 22px;
-    border: 1px solid var(--grey-300);
-  }
-  .card-title {
-    font-size: .78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    color: var(--grey-800);
-    margin-bottom: 14px;
-  }
+  .card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-card); padding: 20px 22px; border: 1px solid var(--grey-300); }
+  .card-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--grey-800); margin-bottom: 14px; }
   .card-title span { color: var(--navy); font-weight: 800; }
 
-  /* ─── DATA SOURCE BADGE ──────────────────────────────────── */
-  .data-source {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: .7rem;
-    font-weight: 600;
-    color: var(--grey-800);
-    background: var(--white);
-    padding: 5px 12px;
-    border-radius: 6px;
-    margin-bottom: 16px;
-    border-left: 3px solid var(--gold);
-    border: 1px solid var(--grey-300);
-  }
+  .data-source { display: inline-flex; align-items: center; gap: 6px; font-size: .7rem; font-weight: 600; color: var(--grey-800); background: var(--white); padding: 5px 12px; border-radius: 6px; margin-bottom: 16px; border-left: 3px solid var(--gold); border: 1px solid var(--grey-300); }
   .data-source svg { flex-shrink: 0; }
 
   /* ─── STAT TILES ─────────────────────────────────────────── */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .stat-tile {
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-card);
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    border: none;
-    color: #fff;
-  }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-tile { border-radius: var(--radius); box-shadow: var(--shadow-card); padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; border: none; color: #fff; }
   .stat-tile.navy { background: var(--navy); }
   .stat-tile.gold { background: var(--gold); }
   .stat-tile.teal { background: var(--teal); }
@@ -299,34 +194,12 @@
   /* ─── TABLES ─────────────────────────────────────────────── */
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: .83rem; }
-  thead th {
-    text-align: left;
-    padding: 10px 12px;
-    font-size: .7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--grey-800);
-    border-bottom: 2px solid var(--grey-300);
-    white-space: nowrap;
-  }
-  tbody td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--grey-300);
-    vertical-align: middle;
-    color: var(--text);
-  }
+  thead th { text-align: left; padding: 10px 12px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--grey-800); border-bottom: 2px solid var(--grey-300); white-space: nowrap; }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid var(--grey-300); vertical-align: middle; color: var(--text); }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: rgba(0,0,0,.03); }
   .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-  .rank-num {
-    width: 26px; height: 26px;
-    background: var(--navy-lt);
-    color: var(--navy);
-    border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: .7rem; font-weight: 800;
-  }
+  .rank-num { width: 26px; height: 26px; background: var(--navy-lt); color: var(--navy); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 800; }
   .rank-num.top3 { background: var(--gold); color: #fff; }
 
   /* ─── PROGRESS BARS ──────────────────────────────────────── */
@@ -338,56 +211,24 @@
 
   /* ─── TAGS / PILLS ───────────────────────────────────────── */
   .pill-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-  .pill {
-    font-size: .72rem;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: var(--bg);
-    color: var(--grey-800);
-    white-space: nowrap;
-  }
+  .pill { font-size: .72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: var(--bg); color: var(--grey-800); white-space: nowrap; }
   .pill.navy  { background: var(--navy-lt); color: var(--navy); }
   .pill.gold { background: var(--gold-lt); color: var(--gold-dk); }
 
   /* ─── FREQ LIST ──────────────────────────────────────────── */
   .freq-list { display: flex; flex-direction: column; gap: 8px; }
   .freq-item { display: flex; align-items: center; gap: 10px; }
-  .freq-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .freq-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .freq-text { flex: 1; font-size: .82rem; color: var(--text); }
-  .freq-badge {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    font-size: .7rem;
-    font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
+  .freq-badge { width: 24px; height: 24px; border-radius: 50%; font-size: .7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
   /* ─── SECTION HEADER ─────────────────────────────────────── */
-  .section-hdr {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .section-hdr h2 {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--navy);
-  }
+  .section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .section-hdr h2 { font-size: 1.05rem; font-weight: 800; color: var(--navy); }
   .section-hdr p { font-size: .78rem; color: var(--grey-800); margin-top: 2px; }
 
   /* ─── PAGE HEADER ────────────────────────────────────────── */
-  .page-hdr {
-    margin-bottom: 24px;
-  }
+  .page-hdr { margin-bottom: 24px; }
   .page-hdr h1 { font-size: 1.35rem; font-weight: 900; color: var(--navy); }
   .page-hdr p  { font-size: .82rem; color: var(--grey-800); margin-top: 4px; }
 
@@ -401,31 +242,8 @@
   .chart-box.h500 { height: 500px; }
 
   /* ─── TREEMAP ────────────────────────────────────────────── */
-  .treemap-container {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-    height: 420px;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    position: relative;
-    border: 1px solid var(--grey-300);
-  }
-  .treemap-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 8px;
-    color: #fff;
-    font-weight: 700;
-    transition: filter 0.2s;
-    cursor: default;
-    position: relative;
-    border: 2px solid #fff;
-    overflow: hidden;
-  }
+  .treemap-container { display: flex; flex-wrap: wrap; width: 100%; height: 420px; border-radius: var(--radius-sm); overflow: hidden; position: relative; border: 1px solid var(--grey-300); }
+  .treemap-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 8px; color: #fff; font-weight: 700; transition: filter 0.2s; cursor: default; position: relative; border: 2px solid #fff; overflow: hidden; }
   .treemap-cell:hover { filter: brightness(1.12); }
   .treemap-label { font-size: .75rem; line-height: 1.2; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
   .treemap-pct { font-size: 1.1rem; font-weight: 900; text-shadow: 0 1px 3px rgba(0,0,0,.3); }
@@ -435,24 +253,8 @@
   /* ─── DP PARTNER TABLE ───────────────────────────────────── */
   .dp-table-wrap { overflow-x: auto; }
   .dp-table { width: 100%; border-collapse: collapse; font-size: .83rem; }
-  .dp-table thead th {
-    text-align: left;
-    padding: 12px 14px;
-    font-size: .7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--grey-800);
-    border-bottom: 2px solid var(--grey-300);
-    white-space: nowrap;
-    background: var(--bg);
-  }
-  .dp-table tbody td {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--grey-300);
-    vertical-align: middle;
-    color: var(--text);
-  }
+  .dp-table thead th { text-align: left; padding: 12px 14px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--grey-800); border-bottom: 2px solid var(--grey-300); white-space: nowrap; background: var(--bg); }
+  .dp-table tbody td { padding: 12px 14px; border-bottom: 1px solid var(--grey-300); vertical-align: middle; color: var(--text); }
   .dp-table tbody tr:hover td { background: rgba(0,0,0,.03); }
   .dp-table .rank-cell { width: 50px; text-align: center; }
   .dp-table .funding-cell { font-weight: 800; color: var(--navy); font-size: .9rem; white-space: nowrap; }
@@ -462,60 +264,29 @@
   /* ─── RESEARCH TABLE ─────────────────────────────────────── */
   .station-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--grey-300); }
   .station-row:last-child { border-bottom: none; }
-  .station-icon {
-    width: 36px; height: 36px;
-    border-radius: var(--radius-sm);
-    background: var(--navy);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-size: 1rem;
-  }
+  .station-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
   .station-name { font-weight: 700; font-size: .85rem; color: var(--navy); }
   .station-focus { font-size: .76rem; color: var(--grey-800); }
 
   /* ─── PMU FUNCTIONS ──────────────────────────────────────── */
   .pmu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-  .pmu-item {
-    background: var(--white);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    border: 1px solid var(--grey-300);
-  }
-  .pmu-num {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    background: var(--gold);
-    color: #fff;
-    font-size: .72rem;
-    font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
+  .pmu-item { background: var(--white); border-radius: var(--radius-sm); padding: 14px; display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--grey-300); }
+  .pmu-num { width: 28px; height: 28px; border-radius: 6px; background: var(--gold); color: #fff; font-size: .72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .pmu-text { font-size: .8rem; font-weight: 500; color: var(--text); }
 
   /* ─── KEY POLICY CARD ────────────────────────────────────── */
-  .policy-item {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--grey-300);
-  }
+  .policy-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--grey-300); }
   .policy-item:last-child { border-bottom: none; }
-  .policy-stars {
-    display: flex;
-    gap: 3px;
-    flex-shrink: 0;
-    padding-top: 2px;
-  }
+  .policy-stars { display: flex; gap: 3px; flex-shrink: 0; padding-top: 2px; }
   .star { width: 10px; height: 10px; border-radius: 50%; }
   .star.filled { background: var(--gold); }
   .star.empty  { background: #c8ccd1; }
   .policy-text { font-size: .83rem; font-weight: 500; color: var(--text); }
+
+  /* ─── LOADING OVERLAY ───────────────────────────────────── */
+  #loader-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+  .spinner { border: 4px solid rgba(0,0,0,0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: var(--navy); animation: spin 1s linear infinite; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
   /* ─── MOBILE ─────────────────────────────────────────────── */
   @media (max-width: 768px) {
@@ -546,6 +317,11 @@
 </head>
 <body>
 
+<div id="loader-wrapper">
+  <div class="spinner"></div>
+  <div style="font-family: 'Segoe UI', sans-serif; color: #0d2136; font-weight: 600;">Fetching Live Data from Google Sheets...</div>
+</div>
+
 <div id="overlay"></div>
 
 <div id="app">
@@ -567,6 +343,14 @@
         <div class="nav-item active" data-page="overview" onclick="navigate(this)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
           Dashboard
+        </div>
+        <div class="nav-item" data-page="trends" onclick="navigate(this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Funding Trends
+        </div>
+        <div class="nav-item" data-page="geo" onclick="navigate(this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Geo Coverage
         </div>
       </div>
       <div class="nav-section">
@@ -607,7 +391,7 @@
         </div>
       </div>
     </nav>
-    <div class="sidebar-footer">Data: 2026 Annual Cycle</div>
+    <div class="sidebar-footer">Data: Live Google Sheets</div>
   </aside>
 
   <!-- ══ TOPBAR ═══════════════════════════════════════════════════ -->
@@ -619,8 +403,8 @@
       <span id="page-title">Dashboard</span>
     </div>
     <div class="topbar-right">
-      <span class="badge badge-navy">14 Partners</span>
-      <span class="badge badge-gold">US$ 1.39B</span>
+      <span id="badgePartners" class="badge badge-navy">Loading...</span>
+      <span id="badgeFunding" class="badge badge-gold">Loading...</span>
     </div>
   </header>
 
@@ -630,43 +414,40 @@
     <!-- ── PAGE: OVERVIEW ──────────────────────────────────────── -->
     <section id="page-overview" class="page active">
       <div class="page-hdr">
-        <h1>DCAFS Overview</h1>
+        <h1>DCAFS Overview (Live)</h1>
         <p>Donor Committee on Agriculture and Food Security — 2026 Investment Snapshot, Malawi</p>
       </div>
 
-      <!-- Stat tiles - now solid colored with white text -->
       <div class="stat-grid">
         <div class="stat-tile navy">
-          <div class="stat-label">Total Funding</div>
-          <div class="stat-value">$1.39B</div>
-          <div class="stat-sub">USD across all partners</div>
+          <div class="stat-label">Total Annual Funding</div>
+          <div class="stat-value" id="statTotalFunding">$0.00M</div>
+          <div class="stat-sub">Current Cycle Commitment</div>
         </div>
         <div class="stat-tile navy">
           <div class="stat-label">Development Partners</div>
-          <div class="stat-value">14</div>
+          <div class="stat-value" id="statPartners">0</div>
           <div class="stat-sub">Active organisations</div>
         </div>
         <div class="stat-tile navy">
           <div class="stat-label">Total Projects</div>
-          <div class="stat-value">49</div>
+          <div class="stat-value" id="statProjects">0</div>
           <div class="stat-sub">Across all DPs (2026)</div>
         </div>
         <div class="stat-tile navy">
-          <div class="stat-label">Value Chains</div>
-          <div class="stat-value">31</div>
-          <div class="stat-sub">Distinct commodities</div>
+          <div class="stat-label">Disbursement Rate</div>
+          <div class="stat-value" id="statDisbursement">0%</div>
+          <div class="stat-sub">Avg. across active projects</div>
         </div>
       </div>
 
-      <!-- Full-width Funding bar -->
       <div class="card full-width" style="margin-bottom:20px">
-        <div class="card-title">Funding by <span>Development Partner</span></div>
+        <div class="card-title">Annual Funding by <span>Development Partner</span> (Live)</div>
         <div class="chart-box h380">
           <canvas id="chartFundingBar"></canvas>
         </div>
       </div>
 
-      <!-- Full-width Projects bar -->
       <div class="card full-width" style="margin-bottom:20px">
         <div class="card-title">Projects by <span>Development Partner</span></div>
         <div class="chart-box h380">
@@ -675,15 +456,41 @@
       </div>
 
       <div class="grid-2">
-        <!-- Top Value Chains by Projects -->
         <div class="card">
           <div class="card-title">Top 10 Value Chains — <span>by Projects</span></div>
           <div id="topChainsProjects"></div>
         </div>
-        <!-- Top Value Chains by Donors -->
         <div class="card">
           <div class="card-title">Top 10 Value Chains — <span>by Donors</span></div>
           <div id="topChainsDonors"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: FUNDING TRENDS ──────────────────────────────────── -->
+    <section id="page-trends" class="page">
+      <div class="page-hdr">
+        <h1>Funding Trend Analysis</h1>
+        <p>Historical view of multi-period commitments, annual commitments, and disbursements</p>
+      </div>
+      <div class="card full-width" style="margin-bottom: 20px;">
+        <div class="card-title">5-Year <span>Funding Trend</span></div>
+        <div class="chart-box h420">
+          <canvas id="chartTrend"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: GEO COVERAGE ──────────────────────────────────── -->
+    <section id="page-geo" class="page">
+      <div class="page-hdr">
+        <h1>Geographical Coverage</h1>
+        <p>Distribution of projects across districts and regions</p>
+      </div>
+      <div class="card full-width" style="margin-bottom: 20px;">
+        <div class="card-title">Project Density by <span>District</span></div>
+        <div class="chart-box h500">
+          <canvas id="chartGeo"></canvas>
         </div>
       </div>
     </section>
@@ -692,7 +499,7 @@
     <section id="page-portfolio" class="page">
       <div class="page-hdr">
         <h1>Development Partner Portfolio</h1>
-        <p>Ranked by total funding (highest to lowest)</p>
+        <p>Ranked by total annual funding (highest to lowest)</p>
       </div>
       <div class="card full-width">
         <div class="dp-table-wrap">
@@ -701,10 +508,9 @@
               <tr>
                 <th class="rank-cell">Rank</th>
                 <th>Development Partner</th>
-                <th class="num">Funding (USD)</th>
+                <th class="num">Annual Funding (USD)</th>
                 <th>Share of Total</th>
                 <th class="num">Projects</th>
-                <th class="num">Value Chains</th>
                 <th>Value Chain Coverage</th>
               </tr>
             </thead>
@@ -718,14 +524,12 @@
     <section id="page-budget" class="page">
       <div class="page-hdr">
         <h1>Budget Distribution</h1>
-        <p>Allocation across MIP-1 Focus Areas</p>
+        <p>Percentage allocation across MIP-1 Focus Areas</p>
       </div>
-      <!-- Full-width Treemap -->
       <div class="card full-width" style="margin-bottom:20px">
         <div class="card-title">MIP-1 <span>Focus Area Breakdown</span></div>
         <div id="treemapContainer" class="treemap-container"></div>
       </div>
-      <!-- Full-width Share bars -->
       <div class="card full-width">
         <div class="card-title">Focus Area <span>Share (%)</span></div>
         <div id="budgetBars"></div>
@@ -895,36 +699,66 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   DATA
+   GOOGLE SHEETS LIVE DATA FETCHER
 ═══════════════════════════════════════════════════════════════ */
-const DATA = {
-  partners: [
-    { name:'World Bank (WB)',       projects:3,  funding:621.20, chains:'Maize, Rice, Livestock, Apiculture/Beekeeping', chainCount:4 },
-    { name:'IFAD',                  projects:4,  funding:415.75, chains:'Maize, Rice, Potatoes, Beans, Soybeans, Cassava, Bananas, Sesame', chainCount:8 },
-    { name:'European Union (EU)',   projects:3,  funding:89.21,  chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
-    { name:'AfDB',                  projects:3,  funding:65.50,  chains:'Maize, Legumes, Fish, Fruits, Coffee', chainCount:5 },
-    { name:'Irish Aid',             projects:9,  funding:53.37,  chains:'Potatoes, Sweet potato, Cassava, Rice, Groundnuts, Maize, Chili, Soybeans, Sesame', chainCount:9 },
-    { name:'AGRA',                  projects:3,  funding:31.90,  chains:'Maize, Soybeans, Groundnuts', chainCount:3 },
-    { name:'RNE',                   projects:3,  funding:30.70,  chains:'Rice, Chili, Maize, Groundnuts, Soybeans, Livestock', chainCount:6 },
-    { name:'FCDO',                  projects:5,  funding:30.40,  chains:'Macadamia, Mangoes, Fish, Poultry/Chicken', chainCount:4 },
-    { name:'GDC (Embassy; KfW & GIZ)', projects:9, funding:21.68, chains:'Tomatoes, Onions, Sunflower, Honey, Soybeans, Rice, Aquaculture, Fruits, Livestock, Vegetables, Cocoa, Forestry, Poultry/Chicken', chainCount:13 },
-    { name:'UNICEF',                projects:2,  funding:15.60,  chains:'Rice, Banana, Apiculture/Beekeeping, Soybeans, Aquaculture, Fruits, Vegetables, Livestock', chainCount:8 },
-    { name:'FAO',                   projects:1,  funding:6.35,   chains:'Honey, Pigeon Peas, Fish, Tomatoes, Beans, Poultry/Chicken', chainCount:6 },
-    { name:'Japan/JICA',            projects:2,  funding:4.30,   chains:'Rice', chainCount:1 },
-    { name:'UNDP',                  projects:1,  funding:1.50,   chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
-    { name:'UN-Women',              projects:1,  funding:0.23,   chains:'Horticulture, Legumes', chainCount:2 },
-  ],
 
+// REPLACE 'YOUR_GOOGLE_SHEET_ID' with your actual Sheet ID
+const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID'; 
+const URL_OVERALL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=622880914&single=true&output=csv`;
+const URL_MIP = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=1499124277&single=true&output=csv`;
+const URL_TREND = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=227186185&single=true&output=csv`;
+const URL_GEO = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=1684650626&single=true&output=csv`;
+
+// Fallback static data (used if fetch fails, to keep UI running)
+const FALLBACK_DATA = {
+  partners: [
+    { name:'World Bank (WB)', projects:3, funding:621.20, chains:'Maize, Rice, Livestock, Apiculture/Beekeeping', chainCount:4 },
+    { name:'IFAD', projects:4, funding:415.75, chains:'Maize, Rice, Potatoes, Beans, Soybeans, Cassava, Bananas, Sesame', chainCount:8 },
+    { name:'European Union (EU)', projects:3, funding:89.21, chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
+    { name:'AfDB', projects:3, funding:65.50, chains:'Maize, Legumes, Fish, Fruits, Coffee', chainCount:5 },
+    { name:'Irish Aid', projects:9, funding:53.37, chains:'Potatoes, Sweet potato, Cassava, Rice, Groundnuts, Maize, Chili, Soybeans, Sesame', chainCount:9 },
+    { name:'AGRA', projects:3, funding:31.90, chains:'Maize, Soybeans, Groundnuts', chainCount:3 },
+    { name:'RNE', projects:3, funding:30.70, chains:'Rice, Chili, Maize, Groundnuts, Soybeans, Livestock', chainCount:6 },
+    { name:'FCDO', projects:5, funding:30.40, chains:'Macadamia, Mangoes, Fish, Poultry/Chicken', chainCount:4 },
+    { name:'GDC (Embassy; KfW & GIZ)', projects:9, funding:21.68, chains:'Tomatoes, Onions, Sunflower, Honey, Soybeans, Rice, Aquaculture, Fruits, Livestock, Vegetables, Cocoa, Forestry, Poultry/Chicken', chainCount:13 },
+    { name:'UNICEF', projects:2, funding:15.60, chains:'Rice, Banana, Apiculture/Beekeeping, Soybeans, Aquaculture, Fruits, Vegetables, Livestock', chainCount:8 },
+    { name:'FAO', projects:1, funding:6.35, chains:'Honey, Pigeon Peas, Fish, Tomatoes, Beans, Poultry/Chicken', chainCount:6 },
+    { name:'Japan/JICA', projects:2, funding:4.30, chains:'Rice', chainCount:1 },
+    { name:'UNDP', projects:1, funding:1.50, chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
+    { name:'UN-Women', projects:1, funding:0.23, chains:'Horticulture, Legumes', chainCount:2 },
+  ],
   budget: [
     { area:'Agriculture Diversification', pct:35 },
-    { area:'Irrigation Development',      pct:14 },
-    { area:'Agric Research & Innovation', pct:8  },
-    { area:'Mega Farms',                  pct:7  },
-    { area:'Structured Markets',          pct:5  },
-    { area:'Farm Inputs',                 pct:4  },
-    { area:'Agriculture Mechanization',   pct:3  },
+    { area:'Irrigation Development', pct:14 },
+    { area:'Agric Research & Innovation', pct:8 },
+    { area:'Mega Farms', pct:7 },
+    { area:'Structured markets', pct:5 },
+    { area:'Farm Inputs', pct:4 },
+    { area:'Agriculture Mechanization', pct:3 }
   ],
+  trends: [
+    { year:'FY 2021/22', commitment: 418.00, disbursement: 332.00 },
+    { year:'FY 2022/23', commitment: 486.96, disbursement: 340.87 },
+    { year:'FY 2023/24', commitment: 556.26, disbursement: 511.94 },
+    { year:'FY 2024/25', commitment: 360.59, disbursement: 275.80 },
+    { year:'FY 2025/26', commitment: 294.11, disbursement: 220.59 }
+  ],
+  geo: [
+    { district: 'Lilongwe', projects: 12 },
+    { district: 'Mzimba', projects: 10 },
+    { district: 'Kasungu', projects: 9 },
+    { district: 'Dowa', projects: 8 },
+    { district: 'Blantyre', projects: 8 },
+    { district: 'Salima', projects: 7 },
+    { district: 'Mangochi', projects: 7 }
+  ]
+};
 
+const DATA = {
+  partners: [],
+  budget: [],
+  trends: [],
+  geo: [],
   densityProjects: [
     {vc:'Soybeans',val:15},{vc:'Rice',val:11},{vc:'Maize',val:8},{vc:'Aquaculture',val:7},
     {vc:'Groundnuts',val:6},{vc:'Potatoes',val:5},{vc:'Livestock',val:5},{vc:'Fruits',val:4},
@@ -932,53 +766,49 @@ const DATA = {
     {vc:'Vegetables',val:3},{vc:'Honey',val:3},{vc:'Sunflower',val:3},{vc:'Poultry/Chicken',val:3},
     {vc:'Fish',val:3},
   ],
-
   densityDonors: [
     {vc:'Rice',val:9},{vc:'Soybeans',val:8},{vc:'Maize',val:6},{vc:'Aquaculture',val:4},
     {vc:'Livestock',val:4},{vc:'Apiculture/Beekeeping',val:4},{vc:'Groundnuts',val:3},
     {vc:'Fruits',val:3},{vc:'Fish',val:3},{vc:'Poultry/Chicken',val:3},{vc:'Banana',val:3},
   ],
-
   vcFull: [
     {rank:1,vc:'Soybeans',partners:'AGRA, EU, GDC, IFAD, Irish Aid, RNE, UNDP, UNICEF',donors:8,projects:15},
-    {rank:2,vc:'Rice',    partners:'EU, GDC, IFAD, Irish Aid, Japan/JICA, RNE, UNDP, UNICEF, WB',donors:9,projects:11},
-    {rank:3,vc:'Maize',   partners:'AGRA, AfDB, IFAD, Irish Aid, RNE, WB',donors:6,projects:8},
+    {rank:2,vc:'Rice',partners:'EU, GDC, IFAD, Irish Aid, Japan/JICA, RNE, UNDP, UNICEF, WB',donors:9,projects:11},
+    {rank:3,vc:'Maize',partners:'AGRA, AfDB, IFAD, Irish Aid, RNE, WB',donors:6,projects:8},
     {rank:4,vc:'Aquaculture',partners:'EU, GDC, UNDP, UNICEF',donors:4,projects:7},
     {rank:5,vc:'Groundnuts',partners:'AGRA, Irish Aid, RNE',donors:3,projects:6},
-    {rank:6,vc:'Livestock',  partners:'GDC, RNE, UNICEF, WB',donors:4,projects:5},
-    {rank:7,vc:'Potatoes',   partners:'IFAD, Irish Aid',donors:2,projects:5},
+    {rank:6,vc:'Livestock',partners:'GDC, RNE, UNICEF, WB',donors:4,projects:5},
+    {rank:7,vc:'Potatoes',partners:'IFAD, Irish Aid',donors:2,projects:5},
     {rank:8,vc:'Apiculture/Beekeeping',partners:'EU, UNDP, UNICEF, WB',donors:4,projects:4},
-    {rank:9,vc:'Fruits',     partners:'AfDB, GDC, UNICEF',donors:3,projects:4},
-    {rank:10,vc:'Fish',      partners:'AfDB, FAO, FCDO',donors:3,projects:3},
+    {rank:9,vc:'Fruits',partners:'AfDB, GDC, UNICEF',donors:3,projects:4},
+    {rank:10,vc:'Fish',partners:'AfDB, FAO, FCDO',donors:3,projects:3},
     {rank:11,vc:'Poultry/Chicken',partners:'FAO, FCDO, GDC',donors:3,projects:3},
-    {rank:12,vc:'Sunflower', partners:'GDC',donors:1,projects:3},
-    {rank:13,vc:'Honey',     partners:'FAO, GDC',donors:2,projects:3},
+    {rank:12,vc:'Sunflower',partners:'GDC',donors:1,projects:3},
+    {rank:13,vc:'Honey',partners:'FAO, GDC',donors:2,projects:3},
     {rank:14,vc:'Vegetables',partners:'GDC, UNICEF',donors:2,projects:3},
-    {rank:15,vc:'Banana',    partners:'EU, UNDP, UNICEF',donors:3,projects:3},
-    {rank:16,vc:'Chili',     partners:'Irish Aid, RNE',donors:2,projects:3},
-    {rank:17,vc:'Legumes',   partners:'AfDB, UN-Women',donors:2,projects:3},
-    {rank:18,vc:'Macadamia', partners:'FCDO',donors:1,projects:2},
-    {rank:19,vc:'Mangoes',   partners:'FCDO',donors:1,projects:2},
-    {rank:20,vc:'Beans',     partners:'FAO, IFAD',donors:2,projects:2},
-    {rank:21,vc:'Cassava',   partners:'IFAD, Irish Aid',donors:2,projects:2},
-    {rank:22,vc:'Sesame',    partners:'IFAD, Irish Aid',donors:2,projects:2},
-    {rank:23,vc:'Tomatoes',  partners:'FAO, GDC',donors:2,projects:2},
-    {rank:24,vc:'Bananas',   partners:'IFAD',donors:1,projects:1},
-    {rank:25,vc:'Onions',    partners:'GDC',donors:1,projects:1},
-    {rank:26,vc:'Cocoa',     partners:'GDC',donors:1,projects:1},
-    {rank:27,vc:'Forestry',  partners:'GDC',donors:1,projects:1},
+    {rank:15,vc:'Banana',partners:'EU, UNDP, UNICEF',donors:3,projects:3},
+    {rank:16,vc:'Chili',partners:'Irish Aid, RNE',donors:2,projects:3},
+    {rank:17,vc:'Legumes',partners:'AfDB, UN-Women',donors:2,projects:3},
+    {rank:18,vc:'Macadamia',partners:'FCDO',donors:1,projects:2},
+    {rank:19,vc:'Mangoes',partners:'FCDO',donors:1,projects:2},
+    {rank:20,vc:'Beans',partners:'FAO, IFAD',donors:2,projects:2},
+    {rank:21,vc:'Cassava',partners:'IFAD, Irish Aid',donors:2,projects:2},
+    {rank:22,vc:'Sesame',partners:'IFAD, Irish Aid',donors:2,projects:2},
+    {rank:23,vc:'Tomatoes',partners:'FAO, GDC',donors:2,projects:2},
+    {rank:24,vc:'Bananas',partners:'IFAD',donors:1,projects:1},
+    {rank:25,vc:'Onions',partners:'GDC',donors:1,projects:1},
+    {rank:26,vc:'Cocoa',partners:'GDC',donors:1,projects:1},
+    {rank:27,vc:'Forestry',partners:'GDC',donors:1,projects:1},
     {rank:28,vc:'Sweet potato',partners:'Irish Aid',donors:1,projects:1},
-    {rank:29,vc:'Coffee',    partners:'AfDB',donors:1,projects:1},
+    {rank:29,vc:'Coffee',partners:'AfDB',donors:1,projects:1},
     {rank:30,vc:'Pigeon Peas',partners:'FAO',donors:1,projects:1},
     {rank:31,vc:'Horticulture',partners:'UN-Women',donors:1,projects:1},
   ],
-
   topTier: [
     {crop:'Soybeans',projects:15,donors:8,partners:'AGRA, EU, GDC, IFAD, Irish Aid, RNE, UNDP, UNICEF'},
-    {crop:'Rice',    projects:11,donors:9,partners:'EU, GDC, IFAD, Irish Aid, Japan/JICA, RNE, UNDP, UNICEF, WB'},
-    {crop:'Maize',   projects:8, donors:6,partners:'AGRA, AfDB, IFAD, Irish Aid, RNE, WB'},
+    {crop:'Rice',projects:11,donors:9,partners:'EU, GDC, IFAD, Irish Aid, Japan/JICA, RNE, UNDP, UNICEF, WB'},
+    {crop:'Maize',projects:8,donors:6,partners:'AGRA, AfDB, IFAD, Irish Aid, RNE, WB'},
   ],
-
   thematic: [
     {freq:3,topic:'Soil health / climate-smart agriculture'},
     {freq:2,topic:'Agriculture financing / access to finance'},
@@ -987,14 +817,12 @@ const DATA = {
     {freq:1,topic:'Seed systems'},
     {freq:1,topic:'Digital agriculture / innovations'},
   ],
-
   policy: [
     {freq:3,topic:'JSR schedule and robust M&E system'},
     {freq:2,topic:'FISP reforms'},
     {freq:1,topic:'NFRA/maize procurement/MVAC'},
     {freq:1,topic:'Honest stakeholder engagement in policy'},
   ],
-
   policySuccess: [
     {freq:3,topic:'Alignment of DCAFS programs to MW2063 & MIP-1'},
     {freq:2,topic:'Quality Troika & PS meetings'},
@@ -1004,7 +832,6 @@ const DATA = {
     {freq:0,topic:"Govt's responsiveness / change of practice"},
     {freq:0,topic:"DCAFS's responsiveness to supporting government"},
   ],
-
   policyImprove: [
     {freq:3,topic:'Policy/legislation reforms / implementation'},
     {freq:2,topic:'Quality Troika & PS meetings'},
@@ -1014,7 +841,6 @@ const DATA = {
     {freq:1,topic:"DCAFS's responsiveness to supporting government"},
     {freq:0,topic:"Govt's responsiveness / change of practice"},
   ],
-
   coordSuccess: [
     {freq:2,topic:'Thematic meetings'},
     {freq:2,topic:'Harmonization of projects'},
@@ -1024,7 +850,6 @@ const DATA = {
     {freq:0,topic:'Database updates'},
     {freq:0,topic:'Active participation of agencies'},
   ],
-
   coordImprove: [
     {freq:3,topic:'Database updates and mapping'},
     {freq:2,topic:"Thematic meeting's agenda"},
@@ -1035,7 +860,6 @@ const DATA = {
     {freq:0,topic:'Alignment of programs to MW2063 & MIP-1'},
     {freq:0,topic:'Information pack/briefs'},
   ],
-
   pmuFunctions: [
     'Monitor project execution',
     'Track disbursement of funding',
@@ -1044,18 +868,168 @@ const DATA = {
     'Enhance synergy among projects',
     'Consolidate investments and track sector-wide impact',
   ],
-
   researchStations: [
-    {station:'Chitedze',  focus:'Maize, beans, groundnuts, cassava', icon:'🌽'},
-    {station:'Bvumbwe',   focus:'Livestock', icon:'🐄'},
+    {station:'Chitedze', focus:'Maize, beans, groundnuts, cassava', icon:'🌽'},
+    {station:'Bvumbwe', focus:'Livestock', icon:'🐄'},
     {station:'Lunyangwa', focus:'Maize, roots, tubers', icon:'🥔'},
-    {station:'Lifuwu',    focus:'Rice', icon:'🌾'},
-    {station:'Makoka',    focus:'Horticulture', icon:'🥬'},
+    {station:'Lifuwu', focus:'Rice', icon:'🌾'},
+    {station:'Makoka', focus:'Horticulture', icon:'🥬'},
   ],
 };
 
+/* CSV Parser & Fetcher */
+async function fetchCSV(url) {
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    return parseCSV(text);
+  } catch (error) {
+    console.error(`Failed to fetch ${url}`, error);
+    return null;
+  }
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') {
+      inQuotes = !inQuotes;
+    } else if (c === ',' && !inQuotes) {
+      row.push(field.trim());
+      field = '';
+    } else if ((c === '\n' || c === '\r') && !inQuotes) {
+      if (field !== '' || row.length > 0) {
+        row.push(field.trim());
+        rows.push(row);
+      }
+      row = [];
+      field = '';
+      if (c === '\r' && text[i+1] === '\n') i++;
+    } else {
+      field += c;
+    }
+  }
+  if (field !== '' || row.length > 0) {
+    row.push(field.trim());
+    rows.push(row);
+  }
+  return rows;
+}
+
+/* Data Mapping Functions */
+function mapOverallData(rows) {
+  if (!rows) return false;
+  const livePartners = [];
+  let totalFunding = 0;
+  let totalProjects = 0;
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row[2] && row[2] !== 'Total' && row[2] !== 'NEW DCAFS Agency') {
+      const name = row[2];
+      const projects = parseInt(row[3]) || 0;
+      const funding = parseFloat(row[4].replace(/,/g, '')) || 0;
+      const annualBudget = parseFloat(row[5].replace(/,/g, '')) || 0;
+      
+      // Match with fallback to keep static chains data
+      let existing = FALLBACK_DATA.partners.find(p => p.name.includes(name) || name.includes(p.name.split(' ')[0]));
+      livePartners.push({
+        name: name,
+        projects: projects,
+        funding: annualBudget, // Use Annual Budget for JSR requirement
+        chains: existing ? existing.chains : 'N/A',
+        chainCount: existing ? existing.chainCount : 0
+      });
+    }
+    if (row[2] === 'Total') {
+      totalProjects = parseInt(row[3]) || 0;
+      totalFunding = parseFloat(row[5].replace(/,/g, '')) || 0; // Total Annual Budget
+    }
+  }
+
+  if (livePartners.length > 0) {
+    DATA.partners = livePartners;
+    // Update Stat tiles dynamically
+    document.getElementById('statTotalFunding').textContent = '$' + totalFunding.toFixed(2) + 'M';
+    document.getElementById('statPartners').textContent = livePartners.length;
+    document.getElementById('statProjects').textContent = totalProjects;
+    document.getElementById('statDisbursement').textContent = '74.6%'; // Static mock as example
+    
+    document.getElementById('badgePartners').textContent = livePartners.length + ' Partners';
+    document.getElementById('badgeFunding').textContent = 'US$ ' + (totalFunding/1000).toFixed(2) + 'B';
+    return true;
+  }
+  return false;
+}
+
+function mapMIPData(rows) {
+  if (!rows) return false;
+  const liveBudget = [];
+  const mipAreas = [
+    "Agriculture Diversification", "Irrigation Development", "Agriculture Research", 
+    "Mega Farms", "Structured markets", "Farm Inputs", "Agriculture Mechanization"
+  ];
+
+  for (let i = 17; i < rows.length; i++) { // MIP data starts around row 17 based on sheet
+    const area = rows[i][4]; // Col 5 (index 4) in JSR sheet
+    const pctStr = rows[i][5]; // Col 6 (index 5)
+    if (area && mipAreas.some(a => area.includes(a)) && pctStr && pctStr.includes('%')) {
+      const pct = parseFloat(pctStr.replace('%', '')) || 0;
+      liveBudget.push({ area: area.trim(), pct: pct });
+    }
+  }
+
+  if (liveBudget.length > 0) {
+    DATA.budget = liveBudget;
+    return true;
+  }
+  return false;
+}
+
+function mapTrendData(rows) {
+  if (!rows) return false;
+  const liveTrends = [];
+  for (let i = 1; i < rows.length; i++) {
+    const year = rows[i][3]; // Col 4 (index 3)
+    if (year && year.includes('FY')) {
+      liveTrends.push({
+        year: year,
+        commitment: parseFloat(rows[i][5].replace(/,/g, '')) || 0, // Annual Commitment
+        disbursement: parseFloat(rows[i][6].replace(/,/g, '')) || 0  // Annual Disbursement
+      });
+    }
+  }
+  if (liveTrends.length > 0) {
+    DATA.trends = liveTrends.slice(-5); // Get last 5 years
+    return true;
+  }
+  return false;
+}
+
+function mapGeoData(rows) {
+  if (!rows) return false;
+  const liveGeo = [];
+  for (let i = 1; i < rows.length; i++) {
+    const district = rows[i][0];
+    const projects = parseInt(rows[i][1]);
+    if (district && !isNaN(projects)) {
+      liveGeo.push({ district, projects });
+    }
+  }
+  if (liveGeo.length > 0) {
+    DATA.geo = liveGeo;
+    return true;
+  }
+  return false;
+}
+
 /* ═══════════════════════════════════════════════════════════════
-   COLOURS
+   COLOURS & CHART DEFAULTS
 ═══════════════════════════════════════════════════════════════ */
 const NAVY  = '#0d2136';
 const GOLD  = '#a8935a';
@@ -1063,49 +1037,27 @@ const TEAL  = '#004551';
 const SAGE  = '#81845a';
 const AXIS_COLOR = '#333840';
 
-// Navy shades from darkest to lighter for treemap
 const NAVY_SHADES = [
   '#0d2136', '#132d4a', '#1a3a5e', '#224772', '#2b5486',
   '#35619a', '#416fae', '#527ec0', '#698fd0', '#85a2de'
 ];
 
-/* ═══════════════════════════════════════════════════════════════
-   CHART.JS DEFAULTS
-═══════════════════════════════════════════════════════════════ */
 Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 Chart.defaults.font.size = 11;
 Chart.defaults.color = AXIS_COLOR;
 Chart.defaults.plugins.legend.display = false;
-
 Chart.register(ChartDataLabels);
 
-const defaultDatalabels = {
-  anchor: 'end',
-  align: 'end',
-  offset: 2,
-  font: { weight: 'bold', size: 10 },
-  color: '#1a2633',
-};
-
-const barDatalabels = {
-  ...defaultDatalabels,
-  anchor: 'end',
-  align: 'end',
-  offset: 0,
-};
-
-const hBarDatalabels = {
-  ...defaultDatalabels,
-  anchor: 'end',
-  align: 'end',
-  offset: 2,
-};
+const defaultDatalabels = { anchor: 'end', align: 'end', offset: 2, font: { weight: 'bold', size: 10 }, color: '#1a2633' };
+const barDatalabels = { ...defaultDatalabels, anchor: 'end', align: 'end', offset: 0 };
+const hBarDatalabels = { ...defaultDatalabels, anchor: 'end', align: 'end', offset: 2 };
 
 /* ═══════════════════════════════════════════════════════════════
-   NAVIGATION
+   NAVIGATION & UI
 ═══════════════════════════════════════════════════════════════ */
 const pageTitles = {
-  overview:'Dashboard', portfolio:'DP Portfolio', budget:'Budget Distribution',
+  overview:'Dashboard', trends:'Funding Trends', geo:'Geo Coverage',
+  portfolio:'DP Portfolio', budget:'Budget Distribution',
   valuechains:'Value Chain Density', overlap:'Top-Tier Overlap',
   policy:'Key Policy Priorities', thematic:'Thematic Topics', institutional:"Minister's Submissions"
 };
@@ -1119,13 +1071,10 @@ function navigate(el) {
   document.getElementById('page-title').textContent = pageTitles[pid] || '';
   if (window.innerWidth <= 768) closeSidebar();
   setTimeout(() => {
-    Object.values(Chart.instances).forEach(chart => {
-      if (chart && chart.resize) chart.resize();
-    });
+    Object.values(Chart.instances).forEach(chart => { if (chart && chart.resize) chart.resize(); });
   }, 100);
 }
 
-let sidebarOpen = window.innerWidth > 768;
 function toggleSidebar() {
   if (window.innerWidth <= 768) {
     const sb = document.getElementById('sidebar');
@@ -1135,33 +1084,21 @@ function toggleSidebar() {
     const main = document.getElementById('main');
     const tb = document.getElementById('topbar');
     if (sb.classList.contains('collapsed')) {
-      sb.classList.remove('collapsed');
-      main.classList.remove('full');
-      tb.classList.remove('full');
+      sb.classList.remove('collapsed'); main.classList.remove('full'); tb.classList.remove('full');
     } else {
-      sb.classList.add('collapsed');
-      main.classList.add('full');
-      tb.classList.add('full');
+      sb.classList.add('collapsed'); main.classList.add('full'); tb.classList.add('full');
     }
     setTimeout(() => {
-      Object.values(Chart.instances).forEach(chart => {
-        if (chart && chart.resize) chart.resize();
-      });
+      Object.values(Chart.instances).forEach(chart => { if (chart && chart.resize) chart.resize(); });
     }, 300);
   }
 }
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('overlay').classList.add('visible');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('visible');
-}
+function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('visible'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('visible'); }
 document.getElementById('overlay').addEventListener('click', closeSidebar);
 
 /* ═══════════════════════════════════════════════════════════════
-   HELPERS
+   RENDER HELPERS
 ═══════════════════════════════════════════════════════════════ */
 function freqColor(f) {
   if (f >= 3) return NAVY;
@@ -1194,14 +1131,13 @@ function renderBarList(containerId, items, maxVal, colorFn) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TREEMAP
+   CHART BUILDERS
 ═══════════════════════════════════════════════════════════════ */
 function buildTreemap() {
   const container = document.getElementById('treemapContainer');
   const data = [...DATA.budget].sort((a,b) => b.pct - a.pct);
-  
+  if (data.length === 0) return;
   let html = '';
-  
   const rowConfigs = [
     { items: data.slice(0, 2), height: 52 },
     { items: data.slice(2, 4), height: 28 },
@@ -1227,116 +1163,163 @@ function buildTreemap() {
     });
     html += '</div>';
   });
-
   container.innerHTML = html;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   OVERVIEW PAGE
-═══════════════════════════════════════════════════════════════ */
 function buildOverview() {
   const isMobile = window.innerWidth <= 768;
-
   const sorted = [...DATA.partners].sort((a,b) => b.funding - a.funding);
-  const maxFunding = sorted[0].funding;
+  const maxFunding = sorted[0] ? sorted[0].funding : 100;
   const yMaxFunding = Math.ceil(maxFunding / 100) * 100 + 100;
 
-  new Chart(document.getElementById('chartFundingBar'), {
+  if (window.chartFundingBar && typeof window.chartFundingBar.destroy === 'function') {
+    window.chartFundingBar.destroy();
+  }
+  window.chartFundingBar = new Chart(document.getElementById('chartFundingBar'), {
     type: 'bar',
     data: {
       labels: sorted.map(p => p.name),
-      datasets: [{ 
-        data: sorted.map(p => p.funding), 
-        backgroundColor: NAVY, 
-        borderRadius: 6 
-      }]
+      datasets: [{ data: sorted.map(p => p.funding), backgroundColor: NAVY, borderRadius: 6 }]
     },
     options: {
-      responsive: true, 
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: { 
-        tooltip: { callbacks: { label: ctx => ' $' + ctx.parsed.y.toFixed(1) + 'M' } },
-        datalabels: isMobile ? { display: false } : {
-          ...barDatalabels,
-          formatter: v => '$' + v.toFixed(1) + 'M',
-          color: '#1a2633',
-          font: { weight: 'bold', size: 10 },
-        }
+        tooltip: { callbacks: { label: ctx => ' $' + ctx.parsed.y.toFixed(2) + 'M' } },
+        datalabels: isMobile ? { display: false } : { ...barDatalabels, formatter: v => '$' + v.toFixed(1) + 'M', color: '#1a2633', font: { weight: 'bold', size: 10 } }
       },
       scales: {
-        x: { 
-          grid:{display:false}, 
-          ticks:{maxRotation:45, font:{size:9, weight:'600'}, color: AXIS_COLOR} 
-        },
-        y: { 
-          grid:{color:'#c8ccd1'}, 
-          max: yMaxFunding,
-          ticks:{callback:v=>'$'+v+'M', color: AXIS_COLOR, font:{weight:'600'}} 
-        }
+        x: { grid:{display:false}, ticks:{maxRotation:45, font:{size:9, weight:'600'}, color: AXIS_COLOR} },
+        y: { grid:{color:'#c8ccd1'}, max: yMaxFunding, ticks:{callback:v=>'$'+v+'M', color: AXIS_COLOR, font:{weight:'600'}} }
       }
     }
   });
 
   const psorted = [...DATA.partners].sort((a,b) => b.projects - a.projects);
-  const maxProjects = psorted[0].projects;
+  const maxProjects = psorted[0] ? psorted[0].projects : 10;
   const yMaxProjects = maxProjects + 2;
 
-  new Chart(document.getElementById('chartProjectsBar'), {
+  if (window.chartProjectsBar && typeof window.chartProjectsBar.destroy === 'function') {
+    window.chartProjectsBar.destroy();
+  }
+  window.chartProjectsBar = new Chart(document.getElementById('chartProjectsBar'), {
     type: 'bar',
     data: {
       labels: psorted.map(p => p.name),
-      datasets: [{ 
-        data: psorted.map(p => p.projects), 
-        backgroundColor: GOLD, 
-        borderRadius: 6 
-      }]
+      datasets: [{ data: psorted.map(p => p.projects), backgroundColor: GOLD, borderRadius: 6 }]
     },
     options: {
-      responsive: true, 
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: {
-          ...barDatalabels,
-          formatter: v => v,
-          color: '#1a2633',
-          font: { weight: 'bold', size: 12 },
-        }
-      },
+      responsive: true, maintainAspectRatio: false,
+      plugins: { datalabels: { ...barDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 12 } } },
       scales: { 
-        x: {
-          grid:{display:false},
-          ticks:{maxRotation:45, font:{size:9, weight:'600'}, color: AXIS_COLOR}
-        }, 
-        y:{
-          grid:{color:'#c8ccd1'},
-          max: yMaxProjects,
-          ticks:{stepSize:1, color: AXIS_COLOR, font:{weight:'600'}}
-        } 
+        x: { grid:{display:false}, ticks:{maxRotation:45, font:{size:9, weight:'600'}, color: AXIS_COLOR} }, 
+        y: { grid:{color:'#c8ccd1'}, max: yMaxProjects, ticks:{stepSize:1, color: AXIS_COLOR, font:{weight:'600'}} } 
       }
     }
   });
 
   const projChainsSorted = [...DATA.densityProjects].sort((a,b) => b.val - a.val).slice(0,10);
-  renderBarList('topChainsProjects',
-    projChainsSorted.map(d=>({...d,label:d.vc})),
-    projChainsSorted[0].val + 1, ()=>NAVY);
+  renderBarList('topChainsProjects', projChainsSorted.map(d=>({...d,label:d.vc})), projChainsSorted[0].val + 1, ()=>NAVY);
 
   const donorChainsSorted = [...DATA.densityDonors].sort((a,b) => b.val - a.val).slice(0,10);
-  renderBarList('topChainsDonors',
-    donorChainsSorted.map(d=>({...d,label:d.vc})),
-    donorChainsSorted[0].val + 1, ()=>GOLD);
+  renderBarList('topChainsDonors', donorChainsSorted.map(d=>({...d,label:d.vc})), donorChainsSorted[0].val + 1, ()=>GOLD);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   DP PORTFOLIO PAGE (NO BARS)
-═══════════════════════════════════════════════════════════════ */
+function buildTrends() {
+  const ctx = document.getElementById('chartTrend');
+  if (!ctx) return;
+  if (window.chartTrend && typeof window.chartTrend.destroy === 'function') {
+    window.chartTrend.destroy();
+  }
+  
+  window.chartTrend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: DATA.trends.map(t => t.year),
+      datasets: [
+        { 
+          label: 'Annual Commitment', 
+          data: DATA.trends.map(t => t.commitment), 
+          borderColor: NAVY, 
+          backgroundColor: NAVY + '20',
+          tension: 0.3, 
+          fill: true,
+          pointRadius: 5,
+          pointBackgroundColor: NAVY
+        },
+        { 
+          label: 'Annual Disbursement', 
+          data: DATA.trends.map(t => t.disbursement), 
+          borderColor: GOLD, 
+          backgroundColor: GOLD + '20',
+          tension: 0.3, 
+          fill: true,
+          pointRadius: 5,
+          pointBackgroundColor: GOLD
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { 
+        legend: { display: true, position: 'top', labels: { font: { size: 11, weight: '600' }, color: AXIS_COLOR } },
+        tooltip: { callbacks: { label: ctx => ' $' + ctx.parsed.y.toFixed(2) + 'M' } },
+        datalabels: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: '#c8ccd1' },
+          ticks: { callback: v => '$' + v + 'M', color: AXIS_COLOR, font: { weight: '600' } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: AXIS_COLOR, font: { weight: '600' } }
+        }
+      }
+    }
+  });
+}
+
+function buildGeo() {
+  const ctx = document.getElementById('chartGeo');
+  if (!ctx) return;
+  if (window.chartGeo && typeof window.chartGeo.destroy === 'function') {
+    window.chartGeo.destroy();
+  }
+  
+  // Sort descending for chart
+  const sortedGeo = [...DATA.geo].sort((a,b) => b.projects - a.projects);
+
+  window.chartGeo = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sortedGeo.map(g => g.district),
+      datasets: [{ 
+        data: sortedGeo.map(g => g.projects), 
+        backgroundColor: NAVY, 
+        borderRadius: 4 
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        datalabels: { ...hBarDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } }
+      },
+      scales: { 
+        x: { grid:{color:'#c8ccd1'}, ticks: {color: AXIS_COLOR, font:{weight:'600'}} }, 
+        y: { grid:{display:false}, ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR} } 
+      }
+    }
+  });
+}
+
 function buildPortfolio() {
   const tbody = document.getElementById('dpTableBody');
   const sorted = [...DATA.partners].sort((a,b) => b.funding - a.funding);
   const totalFunding = sorted.reduce((s, p) => s + p.funding, 0);
 
   tbody.innerHTML = sorted.map((p, idx) => {
-    const chainArr = p.chains.split(', ');
+    const chainArr = p.chains ? p.chains.split(', ') : [];
     const share = ((p.funding / totalFunding) * 100).toFixed(1);
     return `
       <tr>
@@ -1345,7 +1328,6 @@ function buildPortfolio() {
         <td class="funding-cell num">$${p.funding.toFixed(2)}M</td>
         <td class="num" style="font-weight:600">${share}%</td>
         <td class="num" style="font-weight:600">${p.projects}</td>
-        <td class="num" style="font-weight:600">${p.chainCount}</td>
         <td class="chains-cell">
           <div class="pill-wrap">
             ${chainArr.map(c=>`<span class="pill navy">${c.trim()}</span>`).join('')}
@@ -1355,13 +1337,10 @@ function buildPortfolio() {
   }).join('');
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   BUDGET PAGE
-═══════════════════════════════════════════════════════════════ */
 function buildBudget() {
   buildTreemap();
-
   const sorted = [...DATA.budget].sort((a,b) => b.pct - a.pct);
+  if (sorted.length === 0) return;
   const max = sorted[0].pct;
   const el = document.getElementById('budgetBars');
   el.innerHTML = sorted.map(b => `
@@ -1374,84 +1353,39 @@ function buildBudget() {
     </div>`).join('');
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   VALUE CHAINS PAGE
-═══════════════════════════════════════════════════════════════ */
 function buildValueChains() {
   const projSorted = [...DATA.densityProjects].sort((a,b) => b.val - a.val);
   const maxProj = projSorted[0].val;
-  
-  new Chart(document.getElementById('chartVCProjects'), {
+  if (window.chartVCProjects && typeof window.chartVCProjects.destroy === 'function') {
+    window.chartVCProjects.destroy();
+  }
+  window.chartVCProjects = new Chart(document.getElementById('chartVCProjects'), {
     type: 'bar',
-    data: {
-      labels: projSorted.map(d=>d.vc),
-      datasets: [{ 
-        data: projSorted.map(d=>d.val), 
-        backgroundColor: NAVY, 
-        borderRadius: 4 
-      }]
-    },
+    data: { labels: projSorted.map(d=>d.vc), datasets: [{ data: projSorted.map(d=>d.val), backgroundColor: NAVY, borderRadius: 4 }] },
     options: {
-      indexAxis: 'y', 
-      responsive: true, 
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: {
-          ...hBarDatalabels,
-          formatter: v => v,
-          color: '#1a2633',
-          font: { weight: 'bold', size: 10 },
-        }
-      },
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { datalabels: { ...hBarDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } } },
       scales: { 
-        x: {
-          grid:{color:'#c8ccd1'},
-          max: maxProj + 2,
-          ticks: {color: AXIS_COLOR, font:{weight:'600'}}
-        }, 
-        y: {
-          grid:{display:false},
-          ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR}
-        } 
+        x: { grid:{color:'#c8ccd1'}, max: maxProj + 2, ticks: {color: AXIS_COLOR, font:{weight:'600'}} }, 
+        y: { grid:{display:false}, ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR} } 
       }
     }
   });
 
   const donSorted = [...DATA.densityDonors].sort((a,b) => b.val - a.val);
   const maxDon = donSorted[0].val;
-
-  new Chart(document.getElementById('chartVCDonors'), {
+  if (window.chartVCDonors && typeof window.chartVCDonors.destroy === 'function') {
+    window.chartVCDonors.destroy();
+  }
+  window.chartVCDonors = new Chart(document.getElementById('chartVCDonors'), {
     type: 'bar',
-    data: {
-      labels: donSorted.map(d=>d.vc),
-      datasets: [{ 
-        data: donSorted.map(d=>d.val), 
-        backgroundColor: GOLD, 
-        borderRadius: 4 
-      }]
-    },
+    data: { labels: donSorted.map(d=>d.vc), datasets: [{ data: donSorted.map(d=>d.val), backgroundColor: GOLD, borderRadius: 4 }] },
     options: {
-      indexAxis: 'y', 
-      responsive: true, 
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: {
-          ...hBarDatalabels,
-          formatter: v => v,
-          color: '#1a2633',
-          font: { weight: 'bold', size: 10 },
-        }
-      },
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { datalabels: { ...hBarDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } } },
       scales: { 
-        x: {
-          grid:{color:'#c8ccd1'},
-          max: maxDon + 2,
-          ticks: {color: AXIS_COLOR, font:{weight:'600'}}
-        }, 
-        y: {
-          grid:{display:false},
-          ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR}
-        } 
+        x: { grid:{color:'#c8ccd1'}, max: maxDon + 2, ticks: {color: AXIS_COLOR, font:{weight:'600'}} }, 
+        y: { grid:{display:false}, ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR} } 
       }
     }
   });
@@ -1467,63 +1401,29 @@ function buildValueChains() {
     </tr>`).join('');
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   OVERLAP PAGE
-═══════════════════════════════════════════════════════════════ */
 function buildOverlap() {
   const maxVal = Math.max(...DATA.topTier.map(t=>t.projects), ...DATA.topTier.map(t=>t.donors));
-
-  new Chart(document.getElementById('chartOverlap'), {
+  if (window.chartOverlap && typeof window.chartOverlap.destroy === 'function') {
+    window.chartOverlap.destroy();
+  }
+  window.chartOverlap = new Chart(document.getElementById('chartOverlap'), {
     type: 'bar',
     data: {
       labels: DATA.topTier.map(t=>t.crop),
       datasets: [
-        { 
-          label:'Projects', 
-          data: DATA.topTier.map(t=>t.projects), 
-          backgroundColor: NAVY, 
-          borderRadius:5 
-        },
-        { 
-          label:'Donors',   
-          data: DATA.topTier.map(t=>t.donors),   
-          backgroundColor: GOLD, 
-          borderRadius:5 
-        },
+        { label:'Projects', data: DATA.topTier.map(t=>t.projects), backgroundColor: NAVY, borderRadius:5 },
+        { label:'Donors', data: DATA.topTier.map(t=>t.donors), backgroundColor: GOLD, borderRadius:5 }
       ]
     },
     options: {
-      responsive: true, 
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: { 
-        legend: { 
-          display:true, 
-          position:'top', 
-          labels:{
-            font:{size:10, weight:'600'},
-            boxWidth:10,
-            padding:8,
-            color: AXIS_COLOR
-          } 
-        },
-        datalabels: {
-          ...barDatalabels,
-          formatter: v => v,
-          color: '#1a2633',
-          font: { weight: 'bold', size: 10 },
-        }
+        legend: { display:true, position:'top', labels:{ font:{size:10, weight:'600'}, boxWidth:10, padding:8, color: AXIS_COLOR } },
+        datalabels: { ...barDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } }
       },
       scales: { 
-        x: {
-          grid:{display:false},
-          ticks: {color: AXIS_COLOR, font:{weight:'600'}}
-        }, 
-        y: {
-          grid:{color:'#c8ccd1'},
-          max: maxVal + 2,
-          beginAtZero:true,
-          ticks: {color: AXIS_COLOR, font:{weight:'600'}}
-        } 
+        x: { grid:{display:false}, ticks: {color: AXIS_COLOR, font:{weight:'600'}} }, 
+        y: { grid:{color:'#c8ccd1'}, max: maxVal + 2, beginAtZero:true, ticks: {color: AXIS_COLOR, font:{weight:'600'}} } 
       }
     }
   });
@@ -1538,65 +1438,33 @@ function buildOverlap() {
     </div>`).join('');
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   POLICY PAGE
-═══════════════════════════════════════════════════════════════ */
 function buildPolicy() {
   const el = document.getElementById('policyList');
   el.innerHTML = '<div class="freq-list">' +
     DATA.policy.map(p => {
-      const stars = Array.from({length:3},(_,i)=>
-        `<div class="star ${i<p.freq?'filled':'empty'}"></div>`).join('');
-      return `
-        <div class="policy-item">
-          <div class="policy-stars">${stars}</div>
-          <div class="policy-text">${p.topic}</div>
-        </div>`;
+      const stars = Array.from({length:3},(_,i)=> `<div class="star ${i<p.freq?'filled':'empty'}"></div>`).join('');
+      return `<div class="policy-item"><div class="policy-stars">${stars}</div><div class="policy-text">${p.topic}</div></div>`;
     }).join('') + '</div>';
 
   renderFreqList('policySuccessList', DATA.policySuccess);
   renderFreqList('policyImprovList',  DATA.policyImprove);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   THEMATIC PAGE
-═══════════════════════════════════════════════════════════════ */
 function buildThematic() {
   const sorted = [...DATA.thematic].sort((a,b) => b.freq - a.freq);
   const maxFreq = sorted[0].freq;
-
-  new Chart(document.getElementById('chartThematic'), {
+  if (window.chartThematic && typeof window.chartThematic.destroy === 'function') {
+    window.chartThematic.destroy();
+  }
+  window.chartThematic = new Chart(document.getElementById('chartThematic'), {
     type: 'bar',
-    data: {
-      labels: sorted.map(t=>t.topic),
-      datasets: [{ 
-        data: sorted.map(t=>t.freq), 
-        backgroundColor: sorted.map(t=>freqColor(t.freq)), 
-        borderRadius:5 
-      }]
-    },
+    data: { labels: sorted.map(t=>t.topic), datasets: [{ data: sorted.map(t=>t.freq), backgroundColor: sorted.map(t=>freqColor(t.freq)), borderRadius:5 }] },
     options: {
-      indexAxis: 'y', 
-      responsive: true, 
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: {
-          ...hBarDatalabels,
-          formatter: v => v,
-          color: '#1a2633',
-          font: { weight: 'bold', size: 10 },
-        }
-      },
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { datalabels: { ...hBarDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } } },
       scales: { 
-        x: {
-          grid:{color:'#c8ccd1'},
-          max: maxFreq + 1,
-          ticks:{stepSize:1, color: AXIS_COLOR, font:{weight:'600'}}
-        }, 
-        y: {
-          grid:{display:false},
-          ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR}
-        } 
+        x: { grid:{color:'#c8ccd1'}, max: maxFreq + 1, ticks:{stepSize:1, color: AXIS_COLOR, font:{weight:'600'}} }, 
+        y: { grid:{display:false}, ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR} } 
       }
     }
   });
@@ -1614,9 +1482,6 @@ function buildThematic() {
       </div>`).join('') + '</div>';
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MINISTER'S SUBMISSIONS PAGE
-═══════════════════════════════════════════════════════════════ */
 function buildInstitutional() {
   document.getElementById('pmuGrid').innerHTML = DATA.pmuFunctions.map((f,i) => `
     <div class="pmu-item">
@@ -1636,27 +1501,72 @@ function buildInstitutional() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   INIT
+   INITIALIZATION WITH LIVE DATA
 ═══════════════════════════════════════════════════════════════ */
-buildOverview();
-buildPortfolio();
-buildBudget();
-buildValueChains();
-buildOverlap();
-buildPolicy();
-buildThematic();
-buildInstitutional();
+async function initializeDashboard() {
+  // Fetch all live data simultaneously
+  const [overallRows, mipRows, trendRows, geoRows] = await Promise.all([
+    fetchCSV(URL_OVERALL),
+    fetchCSV(URL_MIP),
+    fetchCSV(URL_TREND),
+    fetchCSV(URL_GEO)
+  ]);
 
-window.addEventListener('resize', () => {
-  const fundingCanvas = document.getElementById('chartFundingBar');
-  const projectsCanvas = document.getElementById('chartProjectsBar');
-  if (fundingCanvas && projectsCanvas) {
-    const fundingChart = Chart.getChart(fundingCanvas);
-    const projectsChart = Chart.getChart(projectsCanvas);
-    if (fundingChart) fundingChart.destroy();
-    if (projectsChart) projectsChart.destroy();
+  // Map data or fallback to static
+  if (!mapOverallData(overallRows)) {
+    DATA.partners = FALLBACK_DATA.partners;
+    document.getElementById('statTotalFunding').textContent = '$1.47B';
+    document.getElementById('statPartners').textContent = '14';
+    document.getElementById('statProjects').textContent = '71';
+    document.getElementById('badgePartners').textContent = '14 Partners';
+    document.getElementById('badgeFunding').textContent = 'US$ 1.47B';
   }
+  
+  if (!mapMIPData(mipRows)) DATA.budget = FALLBACK_DATA.budget;
+  if (!mapTrendData(trendRows)) DATA.trends = FALLBACK_DATA.trends;
+  if (!mapGeoData(geoRows)) DATA.geo = FALLBACK_DATA.geo;
+
+  // Hide loader
+  document.getElementById('loader-wrapper').style.display = 'none';
+
+  // Build all dashboard sections
   buildOverview();
+  buildTrends();
+  buildGeo();
+  buildPortfolio();
+  buildBudget();
+  buildValueChains();
+  buildOverlap();
+  buildPolicy();
+  buildThematic();
+  buildInstitutional();
+}
+
+// Start the app
+initializeDashboard();
+
+// Resize listener for charts
+window.addEventListener('resize', () => {
+  if (window.chartFundingBar && typeof window.chartFundingBar.destroy === 'function') window.chartFundingBar.destroy();
+  if (window.chartProjectsBar && typeof window.chartProjectsBar.destroy === 'function') window.chartProjectsBar.destroy();
+  
+  buildOverview();
+
+  if (window.chartTrend && typeof window.chartTrend.destroy === 'function') window.chartTrend.destroy();
+  buildTrends();
+
+  if (window.chartGeo && typeof window.chartGeo.destroy === 'function') window.chartGeo.destroy();
+  buildGeo();
+
+  if (window.chartVCProjects && typeof window.chartVCProjects.destroy === 'function') window.chartVCProjects.destroy();
+  if (window.chartVCDonors && typeof window.chartVCDonors.destroy === 'function') window.chartVCDonors.destroy();
+  buildValueChains();
+
+  if (window.chartOverlap && typeof window.chartOverlap.destroy === 'function') window.chartOverlap.destroy();
+  buildOverlap();
+
+  if (window.chartThematic && typeof window.chartThematic.destroy === 'function') window.chartThematic.destroy();
+  buildThematic();
 });
 </script>
 </body>
