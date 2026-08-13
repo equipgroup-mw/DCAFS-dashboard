@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DCAFS Project Distribution Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root {
+      --accent:    #0d2136; /* Navy */
+      --accent2:   #a8935a; /* Gold */
+      --ink:       #0d1f35;
+      --sub:       #5a6a7e;
+      --border:    rgba(13,33,54,0.1);
+      --shadow-sm: 0 2px 8px rgba(13,31,53,0.06), 0 8px 28px rgba(13,31,53,0.08);
+      --shadow-md: 0 4px 16px rgba(13,31,53,0.07), 0 16px 48px rgba(13,31,53,0.1);
+      --m: 2.4%;
+      --r: 18px;
+      --font: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%; margin: 0; padding: 0;
+      background: #D6D9E0;
+      font-family: var(--font);
+      overflow: hidden;
+      color: var(--ink);
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.12) 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    #map-root {
+      position: absolute; inset: 0; overflow: hidden;
+    }
+    svg { width: 100%; height: 100%; display: block; }
+
+    .district {
+      stroke: #000;
+      stroke-width: 0.8px;
+      cursor: pointer;
+      transition: stroke-width 120ms ease, filter 120ms ease, opacity 120ms ease;
+      paint-order: stroke;
+    }
+    .district:hover {
+      stroke: white; stroke-width: 2px;
+      filter: drop-shadow(0 0 8px rgba(13,33,54,0.35));
+    }
+    .lake { fill: #b8d8f0; stroke: #8ec4e8; stroke-width: 0.5px; }
+    .faded { opacity: 0.1; }
+    .focused {
+      stroke: white; stroke-width: 2.5px;
+      filter: drop-shadow(0 0 12px rgba(168,147,90,0.55));
+    }
+
+    /* Updated District Labels: White text with black stroke */
+    .district-label {
+      font-family: var(--font);
+      font-size: 9.5px;
+      font-weight: 700;
+      text-anchor: middle;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: 0.3px;
+      paint-order: stroke fill;
+      stroke: #000000; /* Black stroke */
+      stroke-width: 1.5px;
+      fill: #ffffff; /* White text */
+    }
+    .district-label.hidden { opacity: 0; }
+
+    .canvas-panel {
+      position: absolute;
+      z-index: 60;
+      border-radius: var(--r);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      opacity: 1; visibility: visible;
+      transition: opacity 350ms cubic-bezier(0.4,0,0.2,1),
+                  visibility 350ms cubic-bezier(0.4,0,0.2,1),
+                  transform 350ms cubic-bezier(0.4,0,0.2,1);
+    }
+    .canvas-panel.faded {
+      opacity: 0; visibility: hidden;
+      transform: translateY(-8px);
+    }
+    .panel-top-districts { right: var(--m); top: var(--m); width: 400px; }
+    .panel-overview      { left:  var(--m); top: var(--m); width: 300px; }
+
+    /* Back Button positioned under the Top Districts panel */
+    .back-btn { 
+      position: absolute; 
+      right: var(--m); 
+      top: calc(var(--m) + 450px + 20px); /* 450px panel height + 20px margin */
+      z-index: 80; 
+      background: var(--accent); 
+      color: #fff; 
+      border: none; 
+      border-radius: 8px; 
+      padding: 10px 20px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      box-shadow: var(--shadow-sm); 
+      transition: opacity 350ms ease, visibility 350ms ease; 
+      font-family: var(--font);
+      font-size: 14px;
+    }
+    .back-btn:hover { background: #1a3a5e; }
+    .back-btn.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .loading {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      padding: 22px 28px; border-radius: 14px;
+      box-shadow: var(--shadow-md);
+      display: flex; align-items: center; gap: 14px;
+      font-weight: 500; font-size: 15px; color: var(--ink);
+    }
+    .loading-spinner {
+      width: 22px; height: 22px;
+      border: 2.5px solid rgba(13,33,54,0.15);
+      border-radius: 50%;
+      border-top-color: var(--accent2);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .legend {
+      position: absolute;
+      left: var(--m);
+      bottom: calc(var(--m) + 52px);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      padding: 12px 16px; border-radius: 14px;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(255,255,255,0.8);
+      min-width: 200px;
+    }
+    .legend.faded { opacity: 0; visibility: hidden; transform: translateY(4px); }
+    .legend-title { font-weight: 700; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sub); margin-bottom: 8px; }
+    /* Updated Legend Gradient to use #0d2136 */
+    .legend-bar { width: 100%; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #ffffff 0%, #647484 40%, #0d2136 100%); margin-bottom: 6px; box-shadow: 0 1px 4px rgba(13,33,54,0.2); }
+    .legend-labels { display: flex; justify-content: space-between; font-size: 10px; font-weight: 500; color: var(--sub); }
+
+    .navigation-buttons { position: absolute; left: var(--m); bottom: calc(var(--m) + 168px); display: flex; gap: 10px; z-index: 70; transition: opacity 350ms ease, visibility 350ms ease; }
+    .navigation-buttons.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .nav-button { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); color: var(--ink); border: 1px solid rgba(255,255,255,0.8); border-radius: 14px; padding: 10px 18px; font-family: var(--font); font-size: 13px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
+    .nav-button:hover { background: white; box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .nav-button .icon { font-size: 16px; }
+    .nav-button .label { font-size: 10px; color: var(--sub); letter-spacing: 0.3px; }
+
+    .header-logo-area { position: absolute; top: var(--m); left: 50%; transform: translateX(-50%); z-index: 70; background: #fff; padding: 8px 16px; border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px; }
+    .header-logo-area img { height: 36px; width: auto; }
+    .header-logo-area span { font-weight: 800; color: var(--accent); font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<button id="back-btn" class="back-btn" onclick="window.location.href='index.html'">← Back to Dashboard</button>
+
+<div id="map-root">
+  <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+
+  <canvas id="panel-top-districts" class="canvas-panel panel-top-districts"></canvas>
+  <canvas id="panel-overview" class="canvas-panel panel-overview"></canvas>
+
+  <div id="loading" class="loading" style="display:none;">
+    <div class="loading-spinner"></div>
+    <span>Loading Project Data…</span>
+  </div>
+
+  <div class="legend" id="mapLegend">
+    <div class="legend-title">Projects per District</div>
+    <div class="legend-bar"></div>
+    <div class="legend-labels"><span>Fewer</span><span>More</span></div>
+  </div>
+</div>
+
+<script>
+(async function(){
+  const ACCENT  = '#0d2136';
+  const ACCENT2 = '#a8935a';
+  const INK     = '#0d1f35';
+  const SUB     = '#5a6a7e';
+  const PANEL_BG= '#ffffff';
+  const F       = "'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif";
+
+  const ABBR = { "CHITIPA":"CP","KARONGA":"KA","LIKOMA":"LK","MZIMBA":"MZ","NKHATA BAY":"NB","NKHATABAY":"NB","RUMPHI":"RU","DEDZA":"DZ","DOWA":"DA","KASUNGU":"KU","LILONGWE":"LL","MCHINJI":"MC","NKHOTAKOTA":"KK","NENO":"NN","NTCHEU":"NU","NTCHISI":"NS","SALIMA":"SA","BALAKA":"BK","BLANTYRE":"BT","CHIKWAWA":"CK","CHIKHWAWA":"CK","CHIRADZULU":"CR","MACHINGA":"MA","MANGOCHI":"MHG","MULANJE":"MU","MWANZA":"MW","NSANJE":"NE","PHALOMBE":"PE","THYOLO":"TO","ZOMBA":"ZA" };
+  const LABEL_OFFSETS = { "CHITIPA":{x:-5,y:-20}, "LIKOMA":{x:0,y:15} };
+
+  // Hardcoded Data from DCAFS
+  const DATA = [
+    { district: "Lilongwe", projects: 15, names: "MFSRP, SVTP-II, FIN4Ag, SAPP II", budget: "$45.20M", chains: "Maize, Soybean, Rice" },
+    { district: "Mzimba", projects: 12, names: "PRIDE, SAPP II, NASFAM", budget: "$32.10M", chains: "Potatoes, Maize, Chili" },
+    { district: "Kasungu", projects: 11, names: "SAPP II, TRADE, YEFFA", budget: "$28.50M", chains: "Soybean, Groundnut, Maize" },
+    { district: "Dowa", projects: 10, names: "FIN4Ag, FARMSE, TRADE", budget: "$18.40M", chains: "Soybean, Sunflower, Rice" },
+    { district: "Blantyre", projects: 9, names: "GETF, RTC-MARKET, UCHI", budget: "$22.30M", chains: "Macadamia, Mango, Aquaculture" },
+    { district: "Salima", projects: 8, names: "MWASIP, PRIDE, SVTP-II", budget: "$15.60M", chains: "Rice, Maize, Fish" },
+    { district: "Mangochi", projects: 8, names: "MWASIP, TRADE, RTC-MARKET", budget: "$14.20M", chains: "Rice, Cotton, Cassava" },
+    { district: "Dedza", projects: 7, names: "SAPP II, TRADE, MIERA III", budget: "$12.10M", chains: "Maize, Beans, Potato" },
+    { district: "Rumphi", projects: 7, names: "PRIDE, NASFAM, SAPP II", budget: "$11.50M", chains: "Rice, Chili, Groundnut" },
+    { district: "Mchinji", projects: 6, names: "TRADE, SAPP II, NASFAM", budget: "$9.80M", chains: "Soybean, Groundnut, Maize" },
+    { district: "Nsanje", projects: 6, names: "SVTP-II, TSOLATA, WFP", budget: "$10.20M", chains: "Maize, Sorghum, Cowpeas" },
+    { district: "Zomba", projects: 6, names: "MWASIP, BRACC, TRADE", budget: "$13.40M", chains: "Maize, Rice, Pigeon Pea" },
+    { district: "Chikwawa", projects: 6, names: "SVTP-II, WFP, BRACC", budget: "$12.80M", chains: "Maize, Sugar, Cotton" },
+    { district: "Machinga", projects: 5, names: "MWASIP, TRADE, WFP", budget: "$8.60M", chains: "Rice, Maize, Groundnut" },
+    { district: "Thyolo", projects: 5, names: "MWASIP, UCHI, BRACC", budget: "$9.10M", chains: "Tea, Macadamia, Avocado" },
+    { district: "Mulanje", projects: 5, names: "MWASIP, UCHI, TRADE", budget: "$8.90M", chains: "Tea, Macadamia, Citrus" },
+    { district: "Phalombe", projects: 5, names: "PRIDE, TRADE, BRACC", budget: "$7.20M", chains: "Rice, Potato, Maize" },
+    { district: "Chiradzulu", projects: 4, names: "PRIDE, UCHI, RTC-MARKET", budget: "$6.50M", chains: "Macadamia, Maize, Cassava" },
+    { district: "Balaka", projects: 4, names: "TRADE, NASFAM, MIERA III", budget: "$5.80M", chains: "Soybean, Cotton, Sorghum" },
+    { district: "Nkhotakota", projects: 4, names: "PRIDE, TRADE, YEFFA", budget: "$6.10M", chains: "Rice, Cassava, Fish" },
+    { district: "Karonga", projects: 4, names: "PRIDE, NASFAM, TRANSFORM", budget: "$5.50M", chains: "Rice, Cassava, Beans" },
+    { district: "Chitipa", projects: 3, names: "PRIDE, TRANSFORM, NASFAM", budget: "$4.20M", chains: "Rice, Beans, Groundnut" },
+    { district: "Nkhata Bay", projects: 3, names: "PRIDE, TRANSFORM, NASFAM", budget: "$4.10M", chains: "Cassava, Fish, Rice" },
+    { district: "Ntcheu", projects: 3, names: "TRADE, SAPP II, GETF", budget: "$4.80M", chains: "Soybean, Potato, Maize" },
+    { district: "Mwanza", projects: 2, names: "MWASIP, BRACC", budget: "$2.50M", chains: "Maize, Sorghum, Groundnut" },
+    { district: "Neno", projects: 2, names: "MWASIP, BRACC", budget: "$2.10M", chains: "Maize, Sorghum, Beans" },
+    { district: "Likoma", projects: 1, names: "TRANSFORM", budget: "$0.50M", chains: "Fish, Cassava" }
+  ];
+
+  let geoData=null;
+  let districtSel=null, lakeSel=null, labelSel=null, zoomBehavior=null;
+  let selectedFeature=null, selectedFeatureId=null;
+  let districtCanvas=null, districtCtx=null;
+  let topPage=0;
+
+  const mapRoot  = document.getElementById('map-root');
+  const svg      = d3.select('#map-svg');
+  let W = mapRoot.clientWidth, H = mapRoot.clientHeight;
+  svg.attr('viewBox',`0 0 ${W} ${H}`);
+  const mapGroup = svg.append('g').attr('id','mapGroup');
+
+  const topCanvas = document.getElementById('panel-top-districts');
+  const ovCanvas  = document.getElementById('panel-overview');
+
+  function hiDPI(canvas, w, h){
+    const dpr = window.devicePixelRatio||1;
+    canvas.width  = w*dpr; canvas.height = h*dpr;
+    canvas.style.width  = w+'px'; canvas.style.height = h+'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr,dpr);
+    return ctx;
+  }
+  const topCtx = hiDPI(topCanvas, 400, 450);
+  const ovCtx  = hiDPI(ovCanvas,  300, 310);
+
+  function clearPanel(ctx, canvas){
+    const dpr = window.devicePixelRatio||1;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.scale(dpr,dpr);
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+
+  function panelBg(ctx, PW, PH){
+    ctx.fillStyle = PANEL_BG;
+    roundRect(ctx,0,0,PW,PH,18);
+    ctx.fill();
+
+    const grad = ctx.createLinearGradient(0,0,PW,0);
+    grad.addColorStop(0, ACCENT);
+    grad.addColorStop(1, 'rgba(13,33,54,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,PW,3);
+  }
+
+  function sectionLabel(ctx, text, x, y){
+    ctx.fillStyle = ACCENT2;
+    ctx.font = `700 9px ${F}`;
+    ctx.letterSpacing = '2px';
+    ctx.textAlign = 'left';
+    ctx.fillText(text.toUpperCase(), x, y);
+  }
+
+  function bigHeading(ctx, text, x, y, PW){
+    ctx.fillStyle = INK;
+    ctx.font = `800 28px ${F}`;
+    ctx.textAlign = 'left';
+    ctx.fillText(text, x, y);
+  }
+
+  function divider(ctx, y, PW){
+    ctx.strokeStyle = 'rgba(13,31,53,0.07)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20,y); ctx.lineTo(PW-20,y);
+    ctx.stroke();
+  }
+
+  function gradBar(ctx, x, y, w, h, frac, color1, color2){
+    const filled = Math.max(w * frac, h);
+    ctx.fillStyle = 'rgba(13,31,53,0.05)';
+    roundRect(ctx,x,y,w,h,h/2); ctx.fill();
+    if(frac > 0){
+      const g = ctx.createLinearGradient(x,0,x+filled,0);
+      g.addColorStop(0, color1);
+      g.addColorStop(1, color2);
+      ctx.fillStyle = g;
+      roundRect(ctx,x,y,filled,h,h/2); ctx.fill();
+    }
+  }
+
+  function drawArrow(ctx, x, y, dir, active){
+    const S = 22;
+    ctx.save();
+    ctx.fillStyle = active ? 'rgba(13,33,54,0.7)' : 'rgba(13,31,53,0.15)';
+    ctx.beginPath();
+    if(dir==='down'){ ctx.moveTo(x-S/2,y-S/3); ctx.lineTo(x+S/2,y-S/3); ctx.lineTo(x,y+S/3); }
+    else            { ctx.moveTo(x-S/2,y+S/3); ctx.lineTo(x+S/2,y+S/3); ctx.lineTo(x,y-S/3); }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+
+  function norm(s){ return s ? s.trim().toUpperCase().replace(/\s+/g,' ') : ''; }
+  function titleCase(s){ return s ? s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()) : ''; }
+  function featName(feat){
+    const p=(feat&&feat.properties)||{};
+    for(const k of ['NAME_1','NAME','DISTRICT','Dist_Name','DISTRICT NAME','DISTNAME','DIST_NAME','district','District']){
+      if(p[k]&&typeof p[k]==='string'&&p[k].trim()) return p[k];
+    }
+    return '';
+  }
+  function getAbbr(name){ return ABBR[norm(name)]||norm(name).slice(0,2); }
+
+  function lookupDistrict(rawName){
+    const n=norm(rawName);
+    return DATA.find(d => norm(d.district) === n);
+  }
+
+  let maxCount = 1;
+  DATA.forEach(d => maxCount = Math.max(maxCount, d.projects));
+  
+  // Updated Color Scale: Fades from white to #0d2136
+  const colorInterp = d3.interpolateRgb('#ffffff', ACCENT);
+  function distColor(count){ return count ? colorInterp(Math.sqrt(count/maxCount)) : '#f0f2ff'; }
+  function labelColor(count){
+    const t = Math.sqrt((count||0)/maxCount);
+    // Returns white text for darker shades, and dark text for lighter shades
+    return t > 0.45 ? 'rgba(255,255,255,0.95)' : 'rgba(13,31,53,0.75)';
+  }
+
+  function drawTopPanel(){
+    const ctx=topCtx, canvas=topCanvas;
+    clearPanel(ctx,canvas);
+    const PW=400, PH=450;
+    panelBg(ctx,PW,PH);
+
+    sectionLabel(ctx,'District Project Totals',22,26);
+    bigHeading(ctx,'Top Districts',22,55,PW);
+    divider(ctx,70,PW);
+
+    const perPage=5;
+    const list=[...DATA].sort((a,b)=>b.projects-a.projects).slice(0,10);
+    const totalPg=Math.ceil(list.length/perPage);
+    const start=topPage*perPage;
+    const slice=list.slice(start,Math.min(start+perPage,list.length));
+
+    let y=88;
+    const rowH=68;
+    const barH=5;
+    const padX=22;
+
+    slice.forEach((d,i)=>{
+      const rank=start+i+1;
+      const frac=d.projects/maxCount;
+
+      if(i%2===0){
+        ctx.fillStyle='rgba(13,33,54,0.025)';
+        roundRect(ctx,10,y-4,PW-20,rowH-8,8);
+        ctx.fill();
+      }
+
+      ctx.fillStyle=rank<=3?ACCENT2:'rgba(168,147,90,0.15)';
+      roundRect(ctx,padX,y+2,28,22,5); ctx.fill();
+      ctx.fillStyle=rank<=3?'#fff':ACCENT2;
+      ctx.font=`700 11px ${F}`;
+      ctx.textAlign='center';
+      ctx.fillText(`#${rank}`,padX+14,y+17);
+
+      ctx.fillStyle=INK;
+      ctx.font=`700 16px ${F}`;
+      ctx.textAlign='left';
+      ctx.fillText(titleCase(d.district),padX+36,y+16);
+
+      ctx.fillStyle=SUB;
+      ctx.font=`500 11px ${F}`;
+      ctx.fillText(`${d.budget} allocated`,padX+36,y+31);
+
+      ctx.fillStyle=ACCENT;
+      ctx.font=`800 22px ${F}`;
+      ctx.textAlign='right';
+      ctx.fillText(d.projects,PW-padX,y+17);
+
+      gradBar(ctx,padX,y+42,PW-padX*2,barH,frac,'rgba(168,147,90,0.3)',ACCENT2);
+
+      y+=rowH;
+    });
+
+    divider(ctx,y+4,PW);
+
+    if(totalPg>1){
+      const py=PH-26;
+      ctx.fillStyle=SUB;
+      ctx.font=`600 11px ${F}`;
+      ctx.textAlign='center';
+      ctx.fillText(`${topPage+1} / ${totalPg}`,PW/2,py+4);
+      drawArrow(ctx,PW/2-55,py,'up',topPage>0);
+      drawArrow(ctx,PW/2+55,py,'down',topPage<totalPg-1);
+    }
+  }
+
+  function drawOverviewPanel(){
+    const ctx=ovCtx, canvas=ovCanvas;
+    clearPanel(ctx,canvas);
+    const PW=300, PH=310;
+    panelBg(ctx,PW,PH);
+
+    sectionLabel(ctx,'National Summary',22,26);
+    bigHeading(ctx,'Overview',22,55,PW);
+    divider(ctx,70,PW);
+
+    const padX=22;
+    const barW=PW-padX*2;
+
+    ctx.fillStyle=SUB;
+    ctx.font=`600 9px ${F}`;
+    ctx.textAlign='left';
+    ctx.fillText('TOTAL PROJECTS',padX,92);
+    ctx.fillStyle=INK;
+    ctx.font=`800 52px ${F}`;
+    ctx.fillText(DATA.reduce((s,d)=>s+d.projects,0),padX,142);
+
+    divider(ctx,156,PW);
+
+    let y=175;
+    const rowH=58;
+    const totalBudget = DATA.reduce((s,d) => s + parseFloat(d.budget.replace(/[^0-9.]/g, '')), 0);
+    const totalChains = [...new Set(DATA.flatMap(d => d.chains.split(',')))].length;
+
+    ctx.fillStyle=SUB;
+    ctx.font=`600 9px ${F}`;
+    ctx.fillText('TOTAL ALLOCATED BUDGET',padX,y-4);
+    ctx.fillStyle=INK;
+    ctx.font=`700 22px ${F}`;
+    ctx.fillText(`$${totalBudget.toFixed(1)}M`,padX,y+18);
+    y+=rowH;
+
+    divider(ctx,y,PW); y+=16;
+
+    ctx.fillStyle=SUB;
+    ctx.font=`600 9px ${F}`;
+    ctx.fillText('DISTRICTS COVERED',padX,y-2);
+    ctx.fillStyle=INK;
+    ctx.font=`700 22px ${F}`;
+    ctx.fillText(DATA.length,padX,y+18);
+  }
+
+  function drawDistrictPanel(feature){
+    if(!districtCanvas){
+      districtCanvas=document.createElement('canvas');
+      districtCanvas.id='panel-district';
+      districtCanvas.className='canvas-panel';
+      Object.assign(districtCanvas.style,{
+        position:'absolute',left:'2.4%',top:'2.4%',
+        zIndex:'60',borderRadius:'18px',
+        boxShadow:'0 4px 16px rgba(13,31,53,0.07),0 16px 48px rgba(13,31,53,0.1)'
+      });
+      document.getElementById('map-root').appendChild(districtCanvas);
+      districtCtx=hiDPI(districtCanvas,340,560);
+      districtCanvas.style.width='340px';
+      districtCanvas.style.height='560px';
+    }
+
+    const ctx=districtCtx, canvas=districtCanvas;
+    clearPanel(ctx,canvas);
+    const PW=340, PH=560;
+    panelBg(ctx,PW,PH);
+
+    const rawName=featName(feature);
+    const stats=lookupDistrict(rawName)||{projects:0, names:'', budget:'$0', chains:''};
+    const rankIdx=DATA.sort((a,b)=>b.projects-a.projects).findIndex(d=>norm(d.district)===norm(rawName));
+    const rank=rankIdx>=0?rankIdx+1:null;
+    const padX=22;
+
+    sectionLabel(ctx,'District Detail',padX,26);
+    bigHeading(ctx,titleCase(rawName)||'Unknown',padX,56,PW);
+    divider(ctx,70,PW);
+
+    ctx.fillStyle=SUB;
+    ctx.font=`600 9px ${F}`;
+    ctx.textAlign='left';
+    ctx.fillText('TOTAL PROJECTS IN DISTRICT',padX,92);
+
+    ctx.fillStyle=ACCENT;
+    ctx.font=`800 72px ${F}`;
+    ctx.fillText(stats.projects,padX,162);
+
+    divider(ctx,178,PW);
+
+    let y=196;
+    
+    ctx.fillStyle=SUB;
+    ctx.font=`600 9px ${F}`;
+    ctx.fillText('ALLOCATED BUDGET',padX,y-2);
+    ctx.fillStyle=INK;
+    ctx.font=`700 22px ${F}`;
+    ctx.fillText(stats.budget,padX,y+18);
+    y+=50;
+
+    divider(ctx,y,PW); y+=16;
+
+    ctx.fillStyle=SUB;
+    ctx.font=`600 9px ${F}`;
+    ctx.fillText('PROJECT NAMES',padX,y-2);
+    ctx.fillStyle=INK;
+    ctx.font=`600 13px ${F}`;
+    // wrap text
+    const words = stats.names.split(' ');
+    let line = '';
+    let lineY = y + 18;
+    for(let n = 0; n < words.length; n++) {
+      let testLine = line + words[n] + ' ';
+      if (ctx.measureText(testLine).width > PW - padX*2 && n > 0) {
+        ctx.fillText(line, padX, lineY);
+        line = words[n] + ' ';
+        lineY += 16;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, padX, lineY);
+    y = lineY + 16;
+
+    divider(ctx,y,PW); y+=16;
+
+    ctx.fillStyle=SUB;
+    ctx.font=`600 9px ${F}`;
+    ctx.fillText('VALUE CHAINS SUPPORTED',padX,y-2);
+    ctx.fillStyle=ACCENT2;
+    ctx.font=`600 12px ${F}`;
+    const chains = stats.chains.split(',');
+    let cLine = '';
+    let cLineY = y + 18;
+    for(let n = 0; n < chains.length; n++) {
+      let testLine = cLine + chains[n].trim() + ', ';
+      if (ctx.measureText(testLine).width > PW - padX*2 && n > 0) {
+        ctx.fillText(cLine, padX, cLineY);
+        cLine = chains[n].trim() + ', ';
+        cLineY += 16;
+      } else {
+        cLine = testLine;
+      }
+    }
+    ctx.fillText(cLine, padX, cLineY);
+
+    const tileW=(PW-padX*2-16)/3;
+    const tiles=[
+      {label:'NAT. RANK', value: rank?`#${rank}`:'—', sub:'of 28'},
+    ];
+    tiles.forEach((tile,i)=>{
+      const tx=padX+i*(tileW+8);
+      ctx.fillStyle='rgba(168,147,90,0.05)';
+      roundRect(ctx,tx,PH-80,tileW,68,10); ctx.fill();
+      ctx.fillStyle=ACCENT2;
+      ctx.font=`600 8px ${F}`;
+      ctx.textAlign='center';
+      ctx.fillText(tile.label,tx+tileW/2,PH-64);
+      ctx.fillStyle=INK;
+      ctx.font=`800 22px ${F}`;
+      ctx.fillText(tile.value,tx+tileW/2,PH-39);
+      ctx.fillStyle=SUB;
+      ctx.font=`500 9px ${F}`;
+      ctx.fillText(tile.sub,tx+tileW/2,PH-24);
+    });
+  }
+
+  function initZoom(){
+    zoomBehavior=d3.zoom().scaleExtent([1,12]).on('zoom',e=>{
+      mapGroup.attr('transform',e.transform);
+    });
+    svg.call(zoomBehavior);
+  }
+
+  function focusOnFeature(feat){
+    const b=path.bounds(feat);
+    const dx=b[1][0]-b[0][0],dy=b[1][1]-b[0][1];
+    const cx=(b[0][0]+b[1][0])/2,cy=(b[0][1]+b[1][1])/2;
+    const sc=Math.max(1,Math.min(12,0.9/Math.max(dx/(W*0.6),dy/H)));
+    const tx=W*0.65-sc*cx,ty=H/2-sc*cy;
+    svg.transition().duration(2400)
+      .call(zoomBehavior.transform,d3.zoomIdentity.translate(tx,ty).scale(sc));
+  }
+
+  function showOverlayUI(){
+    document.getElementById('mapLegend').classList.remove('faded');
+    document.getElementById('back-btn').classList.remove('hidden'); // Show button
+    topCanvas.classList.remove('faded');
+    ovCanvas.classList.remove('faded');
+  }
+  function hideOverlayUI(){
+    document.getElementById('mapLegend').classList.add('faded');
+    document.getElementById('back-btn').classList.add('hidden'); // Hide button
+    topCanvas.classList.add('faded');
+    ovCanvas.classList.add('faded');
+  }
+
+  function resetView(){
+    selectedFeature=null; selectedFeatureId=null;
+    svg.transition().duration(1800).call(zoomBehavior.transform,d3.zoomIdentity);
+    if(districtSel){districtSel.classed('faded',false).classed('focused',false);}
+    if(labelSel){labelSel.classed('hidden',false);}
+    if(districtCanvas){districtCanvas.remove();districtCanvas=null;districtCtx=null;}
+    showOverlayUI();
+    topPage=0;
+    drawTopPanel();
+  }
+
+  function onDistrictClick(event,d){
+    const id=d.id||(d.properties&&(d.properties.id||d.properties.NAME_1||d.properties.DISTRICT))||null;
+    if(selectedFeature&&selectedFeatureId===id){resetView();return;}
+    selectedFeature=d; selectedFeatureId=id;
+
+    hideOverlayUI();
+    focusOnFeature(d);
+    districtSel.classed('faded',dd=>dd!==d);
+    d3.select(this).classed('faded',false).classed('focused',true).raise();
+    labelSel.classed('hidden',true);
+    drawDistrictPanel(d);
+  }
+
+  function setupCanvasClicks(){
+    topCanvas.addEventListener('click',e=>{
+      const rect=topCanvas.getBoundingClientRect();
+      const y=e.clientY-rect.top;
+      if(y<rect.height-60) return;
+      const list=[...DATA].sort((a,b)=>b.projects-a.projects).slice(0,10);
+      const totalPg=Math.ceil(list.length/5);
+      const x=e.clientX-rect.left;
+      if(x<rect.width/2&&topPage>0)          {topPage--;drawTopPanel();}
+      else if(x>=rect.width/2&&topPage<totalPg-1){topPage++;drawTopPanel();}
+    });
+  }
+
+  function setupKeyboard(){
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){resetView();return;}
+      if(!topCanvas.classList.contains('faded')){
+        const list=[...DATA].sort((a,b)=>b.projects-a.projects).slice(0,10);
+        const totalPg=Math.ceil(list.length/5);
+        if(e.key==='ArrowDown'&&topPage<totalPg-1){e.preventDefault();topPage++;drawTopPanel();}
+        if(e.key==='ArrowUp'&&topPage>0){e.preventDefault();topPage--;drawTopPanel();}
+      }
+    });
+  }
+
+  function updateProjection(){
+    W=mapRoot.clientWidth; H=mapRoot.clientHeight;
+    svg.attr('viewBox',`0 0 ${W} ${H}`);
+    const proj = d3.geoMercator()
+      .center([34.3015,-13.2543])
+      .scale(Math.min(W,H)*6.5)
+      .translate([W/2,H/2]);
+    path.projection(proj);
+  }
+
+  const proj = d3.geoMercator()
+    .center([34.3015,-13.2543])
+    .scale(Math.min(W,H)*6.5)
+    .translate([W/2,H/2]);
+  const path = d3.geoPath().projection(proj);
+
+  try{
+    d3.select('#loading').style('display','flex');
+
+    let geo;
+    try{ geo=await d3.json('malawi_districts.geojson'); }
+    catch(e){ throw new Error(`GeoJSON: ${e.message}`); }
+
+    geoData=geo;
+    updateProjection();
+
+    function isLake(f){
+      const p=f.properties||{};
+      return (p.TYPE||p.type||'').toLowerCase().includes('lake')
+          ||(p.NAME||p.NAME_1||p.name||'').toLowerCase().includes('lake');
+    }
+    const features=geoData.features||[];
+    const lakes=features.filter(isLake);
+    const districts=features.filter(f=>!isLake(f));
+
+    lakeSel=mapGroup.append('g').attr('class','lakes')
+      .selectAll('path').data(lakes).enter()
+      .append('path').attr('class','lake').attr('d',path);
+
+    districtSel=mapGroup.append('g').attr('class','districts')
+      .selectAll('path').data(districts).enter()
+      .append('path')
+      .attr('class','district').attr('d',path)
+      .attr('fill',d=>{
+        const s=lookupDistrict(featName(d));
+        return s?distColor(s.projects):'#f0f2ff';
+      })
+      .on('click',onDistrictClick)
+      .on('mouseover',function(){d3.select(this).classed('focused',true);})
+      .on('mouseout',function(e,d){
+        const id=d.id||(d.properties&&(d.properties.id||d.properties.NAME_1||d.properties.DISTRICT))||null;
+        if(selectedFeatureId!==id) d3.select(this).classed('focused',false);
+      });
+
+    labelSel=mapGroup.append('g').attr('class','district-labels')
+      .selectAll('text').data(districts).enter()
+      .append('text')
+      .attr('class','district-label')
+      .attr('transform',d=>{
+        const c=path.centroid(d);
+        const dn=norm(featName(d));
+        const off=LABEL_OFFSETS[dn]||{x:0,y:0};
+        return `translate(${c[0]+off.x},${c[1]+off.y})`;
+      })
+      .attr('dy','0.35em')
+      .attr('fill',d=>{
+        const s=lookupDistrict(featName(d));
+        return labelColor(s?s.projects:0);
+      })
+      .text(d=>getAbbr(featName(d)));
+
+    initZoom();
+    setupKeyboard();
+    setupCanvasClicks();
+
+    svg.on('click',e=>{
+      if(e.target.tagName&&e.target.tagName.toLowerCase()==='svg') resetView();
+    });
+
+    window.addEventListener('resize',()=>{
+      clearTimeout(window._rt);
+      window._rt=setTimeout(()=>{
+        updateProjection();
+        svg.selectAll('path').attr('d',path);
+        labelSel.attr('transform',d=>{
+          const c=path.centroid(d);
+          const dn=norm(featName(d));
+          const off=LABEL_OFFSETS[dn]||{x:0,y:0};
+          return `translate(${c[0]+off.x},${c[1]+off.y})`;
+        });
+      },250);
+    });
+
+    drawTopPanel();
+    drawOverviewPanel();
+    d3.select('#loading').style('display','none');
+
+  }catch(err){
+    console.error('Init error:',err);
+    d3.select('#loading').style('display','none');
+    const msg=(err&&err.message)?err.message:String(err);
+    const el=document.createElement('div');
+    el.style.cssText=`position:fixed;inset:0;background:rgba(13,31,53,0.88);color:#fff;display:flex;align-items:center;justify-content:center;z-index:9999;padding:40px;font-family:var(--font);`;
+    el.innerHTML=`<div style="max-width:580px;background:#fff;border-radius:20px;padding:40px;color:#0d1f35;box-shadow:0 32px 80px rgba(0,0,0,0.3);">
+      <div style="font-size:36px;margin-bottom:12px;">⚠️</div>
+      <h2 style="color:#0d2136;margin:0 0 12px;font-size:22px;font-weight:800;">Failed to load map data</h2>
+      <p style="color:#5a6a7e;font-size:14px;margin:0 0 20px;line-height:1.7;">${msg}</p>
+      <code style="display:block;background:#f5f7ff;border:1px solid rgba(13,33,54,0.1);border-radius:10px;padding:16px;font-size:12px;color:#0d2136;line-height:1.8;">
+        Ensure you have downloaded 'malawi_districts.geojson' and placed it in the same folder.
+      </code>
+      <button onclick="location.reload()" style="margin-top:20px;background:#0d2136;color:#fff;border:none;border-radius:10px;padding:11px 26px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Retry</button>
+    </div>`;
+    document.body.appendChild(el);
+  }
+})();
+</script>
+</body>
+</html>
