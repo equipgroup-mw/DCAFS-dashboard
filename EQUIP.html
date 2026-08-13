@@ -319,7 +319,7 @@
 
 <div id="loader-wrapper">
   <div class="spinner"></div>
-  <div style="font-family: 'Segoe UI', sans-serif; color: #0d2136; font-weight: 600;">Fetching Live Data from Google Sheets...</div>
+  <div style="font-family: 'Segoe UI', sans-serif; color: #0d2136; font-weight: 600;">Loading DCAFS Data...</div>
 </div>
 
 <div id="overlay"></div>
@@ -391,7 +391,7 @@
         </div>
       </div>
     </nav>
-    <div class="sidebar-footer">Data: Live Google Sheets</div>
+    <div class="sidebar-footer">Data: 2026 Annual Cycle</div>
   </aside>
 
   <!-- ══ TOPBAR ═══════════════════════════════════════════════════ -->
@@ -403,8 +403,8 @@
       <span id="page-title">Dashboard</span>
     </div>
     <div class="topbar-right">
-      <span id="badgePartners" class="badge badge-navy">Loading...</span>
-      <span id="badgeFunding" class="badge badge-gold">Loading...</span>
+      <span id="badgePartners" class="badge badge-navy">15 Partners</span>
+      <span id="badgeFunding" class="badge badge-gold">US$ 294.11M</span>
     </div>
   </header>
 
@@ -414,35 +414,35 @@
     <!-- ── PAGE: OVERVIEW ──────────────────────────────────────── -->
     <section id="page-overview" class="page active">
       <div class="page-hdr">
-        <h1>DCAFS Overview (Live)</h1>
+        <h1>DCAFS Overview</h1>
         <p>Donor Committee on Agriculture and Food Security — 2026 Investment Snapshot, Malawi</p>
       </div>
 
       <div class="stat-grid">
         <div class="stat-tile navy">
           <div class="stat-label">Total Annual Funding</div>
-          <div class="stat-value" id="statTotalFunding">$0.00M</div>
+          <div class="stat-value">$294.11M</div>
           <div class="stat-sub">Current Cycle Commitment</div>
         </div>
         <div class="stat-tile navy">
           <div class="stat-label">Development Partners</div>
-          <div class="stat-value" id="statPartners">0</div>
+          <div class="stat-value">15</div>
           <div class="stat-sub">Active organisations</div>
         </div>
         <div class="stat-tile navy">
           <div class="stat-label">Total Projects</div>
-          <div class="stat-value" id="statProjects">0</div>
+          <div class="stat-value">71</div>
           <div class="stat-sub">Across all DPs (2026)</div>
         </div>
         <div class="stat-tile navy">
           <div class="stat-label">Disbursement Rate</div>
-          <div class="stat-value" id="statDisbursement">0%</div>
+          <div class="stat-value">73.19%</div>
           <div class="stat-sub">Avg. across active projects</div>
         </div>
       </div>
 
       <div class="card full-width" style="margin-bottom:20px">
-        <div class="card-title">Annual Funding by <span>Development Partner</span> (Live)</div>
+        <div class="card-title">Annual Funding by <span>Development Partner</span></div>
         <div class="chart-box h380">
           <canvas id="chartFundingBar"></canvas>
         </div>
@@ -487,6 +487,13 @@
         <h1>Geographical Coverage</h1>
         <p>Distribution of projects across districts and regions</p>
       </div>
+      
+      <div style="margin-bottom: 20px;">
+        <button onclick="launchMap()" style="background: var(--gold); color: #fff; border: none; padding: 12px 24px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s;">
+          🗺️ Launch Full Interactive Map
+        </button>
+      </div>
+
       <div class="card full-width" style="margin-bottom: 20px;">
         <div class="card-title">Project Density by <span>District</span></div>
         <div class="chart-box h500">
@@ -699,66 +706,72 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   GOOGLE SHEETS LIVE DATA FETCHER
+   HARDCODED DATA (From Google Sheets)
 ═══════════════════════════════════════════════════════════════ */
-
-// REPLACE 'YOUR_GOOGLE_SHEET_ID' with your actual Sheet ID
-const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID'; 
-const URL_OVERALL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=622880914&single=true&output=csv`;
-const URL_MIP = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=1499124277&single=true&output=csv`;
-const URL_TREND = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=227186185&single=true&output=csv`;
-const URL_GEO = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTTBSfiwhqJSwlHWuG9NY16UXsEd8IA8rnXKuN7L0IqBjOqfpbv1OvDIf40cx1MVZPvQr35F4tpgxlC/pub?gid=1684650626&single=true&output=csv`;
-
-// Fallback static data (used if fetch fails, to keep UI running)
-const FALLBACK_DATA = {
+const DATA = {
   partners: [
-    { name:'World Bank (WB)', projects:3, funding:621.20, chains:'Maize, Rice, Livestock, Apiculture/Beekeeping', chainCount:4 },
-    { name:'IFAD', projects:4, funding:415.75, chains:'Maize, Rice, Potatoes, Beans, Soybeans, Cassava, Bananas, Sesame', chainCount:8 },
-    { name:'European Union (EU)', projects:3, funding:89.21, chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
-    { name:'AfDB', projects:3, funding:65.50, chains:'Maize, Legumes, Fish, Fruits, Coffee', chainCount:5 },
-    { name:'Irish Aid', projects:9, funding:53.37, chains:'Potatoes, Sweet potato, Cassava, Rice, Groundnuts, Maize, Chili, Soybeans, Sesame', chainCount:9 },
-    { name:'AGRA', projects:3, funding:31.90, chains:'Maize, Soybeans, Groundnuts', chainCount:3 },
-    { name:'RNE', projects:3, funding:30.70, chains:'Rice, Chili, Maize, Groundnuts, Soybeans, Livestock', chainCount:6 },
-    { name:'FCDO', projects:5, funding:30.40, chains:'Macadamia, Mangoes, Fish, Poultry/Chicken', chainCount:4 },
-    { name:'GDC (Embassy; KfW & GIZ)', projects:9, funding:21.68, chains:'Tomatoes, Onions, Sunflower, Honey, Soybeans, Rice, Aquaculture, Fruits, Livestock, Vegetables, Cocoa, Forestry, Poultry/Chicken', chainCount:13 },
-    { name:'UNICEF', projects:2, funding:15.60, chains:'Rice, Banana, Apiculture/Beekeeping, Soybeans, Aquaculture, Fruits, Vegetables, Livestock', chainCount:8 },
-    { name:'FAO', projects:1, funding:6.35, chains:'Honey, Pigeon Peas, Fish, Tomatoes, Beans, Poultry/Chicken', chainCount:6 },
-    { name:'Japan/JICA', projects:2, funding:4.30, chains:'Rice', chainCount:1 },
-    { name:'UNDP', projects:1, funding:1.50, chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
-    { name:'UN-Women', projects:1, funding:0.23, chains:'Horticulture, Legumes', chainCount:2 },
+    { name:'World Bank (WB)', projects:3, funding:124.24, chains:'Maize, Rice, Livestock, Apiculture/Beekeeping', chainCount:4 },
+    { name:'IFAD', projects:4, funding:83.15, chains:'Maize, Rice, Potatoes, Beans, Soybeans, Cassava, Bananas, Sesame', chainCount:8 },
+    { name:'European Union (EU)', projects:3, funding:17.84, chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
+    { name:'AfDB', projects:3, funding:17.29, chains:'Maize, Legumes, Fish, Fruits, Coffee', chainCount:5 },
+    { name:'FAO', projects:20, funding:12.73, chains:'Honey, Pigeon Peas, Fish, Tomatoes, Beans, Poultry/Chicken', chainCount:6 },
+    { name:'Irish Aid', projects:9, funding:10.67, chains:'Potatoes, Sweet potato, Cassava, Rice, Groundnuts, Maize, Chili, Soybeans, Sesame', chainCount:9 },
+    { name:'RNE', projects:3, funding:6.14, chains:'Rice, Chili, Maize, Groundnuts, Soybeans, Livestock', chainCount:6 },
+    { name:'AGRA', projects:3, funding:6.38, chains:'Maize, Soybeans, Groundnuts', chainCount:3 },
+    { name:'FCDO', projects:5, funding:6.08, chains:'Macadamia, Mangoes, Fish, Poultry/Chicken', chainCount:4 },
+    { name:'GDC (Embassy; KfW & GIZ)', projects:9, funding:4.34, chains:'Tomatoes, Onions, Sunflower, Honey, Soybeans, Rice, Aquaculture, Fruits, Livestock, Vegetables, Cocoa, Forestry, Poultry/Chicken', chainCount:13 },
+    { name:'UNICEF', projects:2, funding:3.12, chains:'Rice, Banana, Apiculture/Beekeeping, Soybeans, Aquaculture, Fruits, Vegetables, Livestock', chainCount:8 },
+    { name:'Japan/JICA', projects:2, funding:0.86, chains:'Rice', chainCount:1 },
+    { name:'WFP', projects:3, funding:0.92, chains:'Maize, Sorghum, Cowpeas, Sesame', chainCount:4 },
+    { name:'UNDP', projects:1, funding:0.30, chains:'Soybeans, Rice, Banana, Aquaculture, Apiculture/Beekeeping', chainCount:5 },
+    { name:'UN-Women', projects:1, funding:0.05, chains:'Horticulture, Legumes', chainCount:2 },
   ],
   budget: [
-    { area:'Agriculture Diversification', pct:35 },
-    { area:'Irrigation Development', pct:14 },
-    { area:'Agric Research & Innovation', pct:8 },
-    { area:'Mega Farms', pct:7 },
-    { area:'Structured markets', pct:5 },
-    { area:'Farm Inputs', pct:4 },
-    { area:'Agriculture Mechanization', pct:3 }
+    { area:'Agriculture Diversification', pct:40 },
+    { area:'Irrigation Development', pct:25 },
+    { area:'Agriculture Research', pct:10 },
+    { area:'Mega Farms', pct:8 },
+    { area:'Structured markets', pct:7 },
+    { area:'Farm Inputs', pct:6 },
+    { area:'Agriculture Mechanization', pct:4 }
   ],
   trends: [
     { year:'FY 2021/22', commitment: 418.00, disbursement: 332.00 },
     { year:'FY 2022/23', commitment: 486.96, disbursement: 340.87 },
     { year:'FY 2023/24', commitment: 556.26, disbursement: 511.94 },
     { year:'FY 2024/25', commitment: 360.59, disbursement: 275.80 },
-    { year:'FY 2025/26', commitment: 294.11, disbursement: 220.59 }
+    { year:'FY 2025/26', commitment: 294.11, disbursement: 215.32 }
   ],
   geo: [
-    { district: 'Lilongwe', projects: 12 },
-    { district: 'Mzimba', projects: 10 },
-    { district: 'Kasungu', projects: 9 },
-    { district: 'Dowa', projects: 8 },
-    { district: 'Blantyre', projects: 8 },
-    { district: 'Salima', projects: 7 },
-    { district: 'Mangochi', projects: 7 }
-  ]
-};
-
-const DATA = {
-  partners: [],
-  budget: [],
-  trends: [],
-  geo: [],
+    { district: 'Lilongwe', projects: 15 },
+    { district: 'Mzimba', projects: 12 },
+    { district: 'Kasungu', projects: 11 },
+    { district: 'Dowa', projects: 10 },
+    { district: 'Blantyre', projects: 9 },
+    { district: 'Salima', projects: 8 },
+    { district: 'Mangochi', projects: 8 },
+    { district: 'Dedza', projects: 7 },
+    { district: 'Rumphi', projects: 7 },
+    { district: 'Mchinji', projects: 6 },
+    { district: 'Ntchisi', projects: 6 },
+    { district: 'Nsanje', projects: 6 },
+    { district: 'Chikwawa', projects: 6 },
+    { district: 'Zomba', projects: 6 },
+    { district: 'Machinga', projects: 5 },
+    { district: 'Thyolo', projects: 5 },
+    { district: 'Mulanje', projects: 5 },
+    { district: 'Phalombe', projects: 5 },
+    { district: 'Chiradzulu', projects: 4 },
+    { district: 'Balaka', projects: 4 },
+    { district: 'Nkhotakota', projects: 4 },
+    { district: 'Karonga', projects: 4 },
+    { district: 'Chitipa', projects: 3 },
+    { district: 'Nkhata Bay', projects: 3 },
+    { district: 'Ntcheu', projects: 3 },
+    { district: 'Mwanza', projects: 2 },
+    { district: 'Neno', projects: 2 },
+    { district: 'Likoma', projects: 1 }
+  ],
   densityProjects: [
     {vc:'Soybeans',val:15},{vc:'Rice',val:11},{vc:'Maize',val:8},{vc:'Aquaculture',val:7},
     {vc:'Groundnuts',val:6},{vc:'Potatoes',val:5},{vc:'Livestock',val:5},{vc:'Fruits',val:4},
@@ -877,157 +890,6 @@ const DATA = {
   ],
 };
 
-/* CSV Parser & Fetcher */
-async function fetchCSV(url) {
-  try {
-    const res = await fetch(url);
-    const text = await res.text();
-    return parseCSV(text);
-  } catch (error) {
-    console.error(`Failed to fetch ${url}`, error);
-    return null;
-  }
-}
-
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let field = '';
-  let inQuotes = false;
-  
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (c === '"') {
-      inQuotes = !inQuotes;
-    } else if (c === ',' && !inQuotes) {
-      row.push(field.trim());
-      field = '';
-    } else if ((c === '\n' || c === '\r') && !inQuotes) {
-      if (field !== '' || row.length > 0) {
-        row.push(field.trim());
-        rows.push(row);
-      }
-      row = [];
-      field = '';
-      if (c === '\r' && text[i+1] === '\n') i++;
-    } else {
-      field += c;
-    }
-  }
-  if (field !== '' || row.length > 0) {
-    row.push(field.trim());
-    rows.push(row);
-  }
-  return rows;
-}
-
-/* Data Mapping Functions */
-function mapOverallData(rows) {
-  if (!rows) return false;
-  const livePartners = [];
-  let totalFunding = 0;
-  let totalProjects = 0;
-
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (row[2] && row[2] !== 'Total' && row[2] !== 'NEW DCAFS Agency') {
-      const name = row[2];
-      const projects = parseInt(row[3]) || 0;
-      const funding = parseFloat(row[4].replace(/,/g, '')) || 0;
-      const annualBudget = parseFloat(row[5].replace(/,/g, '')) || 0;
-      
-      // Match with fallback to keep static chains data
-      let existing = FALLBACK_DATA.partners.find(p => p.name.includes(name) || name.includes(p.name.split(' ')[0]));
-      livePartners.push({
-        name: name,
-        projects: projects,
-        funding: annualBudget, // Use Annual Budget for JSR requirement
-        chains: existing ? existing.chains : 'N/A',
-        chainCount: existing ? existing.chainCount : 0
-      });
-    }
-    if (row[2] === 'Total') {
-      totalProjects = parseInt(row[3]) || 0;
-      totalFunding = parseFloat(row[5].replace(/,/g, '')) || 0; // Total Annual Budget
-    }
-  }
-
-  if (livePartners.length > 0) {
-    DATA.partners = livePartners;
-    // Update Stat tiles dynamically
-    document.getElementById('statTotalFunding').textContent = '$' + totalFunding.toFixed(2) + 'M';
-    document.getElementById('statPartners').textContent = livePartners.length;
-    document.getElementById('statProjects').textContent = totalProjects;
-    document.getElementById('statDisbursement').textContent = '74.6%'; // Static mock as example
-    
-    document.getElementById('badgePartners').textContent = livePartners.length + ' Partners';
-    document.getElementById('badgeFunding').textContent = 'US$ ' + (totalFunding/1000).toFixed(2) + 'B';
-    return true;
-  }
-  return false;
-}
-
-function mapMIPData(rows) {
-  if (!rows) return false;
-  const liveBudget = [];
-  const mipAreas = [
-    "Agriculture Diversification", "Irrigation Development", "Agriculture Research", 
-    "Mega Farms", "Structured markets", "Farm Inputs", "Agriculture Mechanization"
-  ];
-
-  for (let i = 17; i < rows.length; i++) { // MIP data starts around row 17 based on sheet
-    const area = rows[i][4]; // Col 5 (index 4) in JSR sheet
-    const pctStr = rows[i][5]; // Col 6 (index 5)
-    if (area && mipAreas.some(a => area.includes(a)) && pctStr && pctStr.includes('%')) {
-      const pct = parseFloat(pctStr.replace('%', '')) || 0;
-      liveBudget.push({ area: area.trim(), pct: pct });
-    }
-  }
-
-  if (liveBudget.length > 0) {
-    DATA.budget = liveBudget;
-    return true;
-  }
-  return false;
-}
-
-function mapTrendData(rows) {
-  if (!rows) return false;
-  const liveTrends = [];
-  for (let i = 1; i < rows.length; i++) {
-    const year = rows[i][3]; // Col 4 (index 3)
-    if (year && year.includes('FY')) {
-      liveTrends.push({
-        year: year,
-        commitment: parseFloat(rows[i][5].replace(/,/g, '')) || 0, // Annual Commitment
-        disbursement: parseFloat(rows[i][6].replace(/,/g, '')) || 0  // Annual Disbursement
-      });
-    }
-  }
-  if (liveTrends.length > 0) {
-    DATA.trends = liveTrends.slice(-5); // Get last 5 years
-    return true;
-  }
-  return false;
-}
-
-function mapGeoData(rows) {
-  if (!rows) return false;
-  const liveGeo = [];
-  for (let i = 1; i < rows.length; i++) {
-    const district = rows[i][0];
-    const projects = parseInt(rows[i][1]);
-    if (district && !isNaN(projects)) {
-      liveGeo.push({ district, projects });
-    }
-  }
-  if (liveGeo.length > 0) {
-    DATA.geo = liveGeo;
-    return true;
-  }
-  return false;
-}
-
 /* ═══════════════════════════════════════════════════════════════
    COLOURS & CHART DEFAULTS
 ═══════════════════════════════════════════════════════════════ */
@@ -1096,6 +958,16 @@ function toggleSidebar() {
 function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('visible'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('visible'); }
 document.getElementById('overlay').addEventListener('click', closeSidebar);
+
+/* Launch Map Redirect */
+function launchMap() {
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    window.location.href = 'mobile.html';
+  } else {
+    window.location.href = 'desktop.html';
+  }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    RENDER HELPERS
@@ -1170,7 +1042,7 @@ function buildOverview() {
   const isMobile = window.innerWidth <= 768;
   const sorted = [...DATA.partners].sort((a,b) => b.funding - a.funding);
   const maxFunding = sorted[0] ? sorted[0].funding : 100;
-  const yMaxFunding = Math.ceil(maxFunding / 100) * 100 + 100;
+  const yMaxFunding = Math.ceil(maxFunding / 50) * 50 + 50;
 
   if (window.chartFundingBar && typeof window.chartFundingBar.destroy === 'function') {
     window.chartFundingBar.destroy();
@@ -1501,31 +1373,9 @@ function buildInstitutional() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   INITIALIZATION WITH LIVE DATA
+   INITIALIZATION
 ═══════════════════════════════════════════════════════════════ */
-async function initializeDashboard() {
-  // Fetch all live data simultaneously
-  const [overallRows, mipRows, trendRows, geoRows] = await Promise.all([
-    fetchCSV(URL_OVERALL),
-    fetchCSV(URL_MIP),
-    fetchCSV(URL_TREND),
-    fetchCSV(URL_GEO)
-  ]);
-
-  // Map data or fallback to static
-  if (!mapOverallData(overallRows)) {
-    DATA.partners = FALLBACK_DATA.partners;
-    document.getElementById('statTotalFunding').textContent = '$1.47B';
-    document.getElementById('statPartners').textContent = '14';
-    document.getElementById('statProjects').textContent = '71';
-    document.getElementById('badgePartners').textContent = '14 Partners';
-    document.getElementById('badgeFunding').textContent = 'US$ 1.47B';
-  }
-  
-  if (!mapMIPData(mipRows)) DATA.budget = FALLBACK_DATA.budget;
-  if (!mapTrendData(trendRows)) DATA.trends = FALLBACK_DATA.trends;
-  if (!mapGeoData(geoRows)) DATA.geo = FALLBACK_DATA.geo;
-
+function initializeDashboard() {
   // Hide loader
   document.getElementById('loader-wrapper').style.display = 'none';
 
