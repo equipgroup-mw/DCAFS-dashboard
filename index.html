@@ -505,6 +505,89 @@
     to { transform: rotate(360deg); }
   }
 
+  /* ─── COMING SOON MODAL ─────────────────────────────────── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13, 33, 54, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal-content {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 48px 40px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.4);
+    position: relative;
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-overlay.visible .modal-content {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: var(--gold-lt);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: var(--gold-dk);
+    font-weight: 900;
+  }
+
+  .modal-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+
+  .modal-subtitle {
+    font-size: 0.95rem;
+    color: var(--grey-500);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .modal-close-btn {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 12px 32px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+
+  .modal-close-btn:hover {
+    background: #1a3a5e;
+  }
+
   /* ─── MOBILE ─────────────────────────────────────────────── */
   @media (max-width: 700px) {
     .landing-container {
@@ -559,6 +642,14 @@
       right: 10px;
       font-size: 0.75rem;
       padding: 10px 16px;
+    }
+    
+    .modal-content {
+      padding: 36px 24px;
+    }
+    
+    .modal-title {
+      font-size: 1.35rem;
     }
   }
 
@@ -647,8 +738,8 @@
 
     <!-- Logo Cards -->
     <div class="logo-cards">
-      <!-- DCAFS Card -->
-      <a href="/DCAFS-dashboard/DCAFS.html" class="logo-card" title="Open DCAFS Dashboard">
+      <!-- DCAFS Card (Coming Soon) -->
+      <div class="logo-card" id="dcafsCard" title="DCAFS Dashboard (Coming Soon)">
         <div class="shimmer"></div>
         <img 
           src="/DCAFS-dashboard/DCAFS.png" 
@@ -661,7 +752,7 @@
         </div>
         <div class="logo-card-label">DCAFS Dashboard</div>
         <div class="logo-card-desc">Donor Committee on Agriculture<br>& Food Security — Standard View</div>
-      </a>
+      </div>
 
       <!-- EQUIP Card -->
       <a href="/DCAFS-dashboard/EQUIP.html" class="logo-card" title="Open EQUIP Dashboard">
@@ -702,11 +793,42 @@
 
   </div>
 
+  <!-- Coming Soon Modal -->
+  <div id="comingSoonModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon">⏳</div>
+      <h2 class="modal-title">Coming Soon</h2>
+      <p class="modal-subtitle">The DCAFS Dashboard version is currently under development and will be available soon. Please check back later!</p>
+      <button id="closeModalBtn" class="modal-close-btn">Got it</button>
+    </div>
+  </div>
+
   <script>
     // ─── UNIQUE PWA IDENTIFIER ───────────────────────────────
     const PWA_UNIQUE_ID = 'dcafs-dashboard-v2-' + window.location.hostname;
     const APP_SCOPE = '/DCAFS-dashboard/';
     
+    // ─── COMING SOON MODAL LOGIC ─────────────────────────────
+    const dcafsCard = document.getElementById('dcafsCard');
+    const comingSoonModal = document.getElementById('comingSoonModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    dcafsCard.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent any navigation
+      comingSoonModal.classList.add('visible');
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+      comingSoonModal.classList.remove('visible');
+    });
+
+    // Close modal if clicking outside the content
+    comingSoonModal.addEventListener('click', (e) => {
+      if (e.target === comingSoonModal) {
+        comingSoonModal.classList.remove('visible');
+      }
+    });
+
     // ─── PWA INSTALL LOGIC ───────────────────────────────────
     let deferredPrompt;
     const installBtn = document.getElementById('pwaInstallBtn');
@@ -985,7 +1107,8 @@
       // Keyboard support - UPDATED WITH ABSOLUTE PATHS
       document.addEventListener('keydown', (e) => {
         if (e.key === '1' || e.key === 'd' || e.key === 'D') {
-          window.location.href = APP_SCOPE + 'DCAFS.html';
+          // Trigger Coming Soon modal for DCAFS
+          comingSoonModal.classList.add('visible');
         } else if (e.key === '2' || e.key === 'e' || e.key === 'E') {
           window.location.href = APP_SCOPE + 'EQUIP.html';
         } else if (e.key === 'i' || e.key === 'I') {
