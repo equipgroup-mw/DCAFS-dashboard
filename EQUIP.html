@@ -288,6 +288,22 @@
   .spinner { border: 4px solid rgba(0,0,0,0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: var(--navy); animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+  /* ─── FILTER DROPDOWN ────────────────────────────────────── */
+  .filter-container { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+  .filter-select {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: .9rem; font-weight: 600; color: var(--navy);
+    background: var(--white);
+    border: 1px solid var(--grey-300);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filter-select:focus { border-color: var(--gold); }
+
   /* ─── MOBILE ─────────────────────────────────────────────── */
   @media (max-width: 768px) {
     :root { --sidebar-w: 240px; }
@@ -471,12 +487,64 @@
     <section id="page-trends" class="page">
       <div class="page-hdr">
         <h1>Funding Trend Analysis</h1>
-        <p>Historical view of multi-period commitments, annual commitments, and disbursements</p>
+        <p>Historical view of multi-period commitments, annual commitments, disbursements, and project counts from FY 2015/16 to FY 2025/26.</p>
       </div>
+
+      <div class="filter-container">
+        <select id="trendFilter" class="filter-select" onchange="applyTrendFilter()">
+          <option value="all">All Years</option>
+          <option value="5" selected>Last 5 Years</option>
+          <option value="2015/16">FY 2015/16</option>
+          <option value="2016/17">FY 2016/17</option>
+          <option value="2017/18">FY 2017/18</option>
+          <option value="2018/19">FY 2018/19</option>
+          <option value="2019/20">FY 2019/20</option>
+          <option value="2020/21">FY 2020/21</option>
+          <option value="2021/22">FY 2021/22</option>
+          <option value="2022/23">FY 2022/23</option>
+          <option value="2023/24">FY 2023/24</option>
+          <option value="2024/25">FY 2024/25</option>
+          <option value="2025/26">FY 2025/26</option>
+        </select>
+      </div>
+
       <div class="card full-width" style="margin-bottom: 20px;">
-        <div class="card-title">5-Year <span>Funding Trend</span></div>
+        <div class="card-title">Annual Commitment vs <span>Annual Disbursement (US$ Million)</span></div>
         <div class="chart-box h420">
           <canvas id="chartTrend"></canvas>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Multi-Period Commitment <span>Pipeline (US$ Million)</span></div>
+          <div class="chart-box h380">
+            <canvas id="chartTrendPipeline"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Number of <span>Active Projects</span></div>
+          <div class="chart-box h380">
+            <canvas id="chartTrendProjects"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card full-width">
+        <div class="card-title">Detailed <span>Financial Breakdown</span></div>
+        <div class="table-wrap">
+          <table id="trendTable">
+            <thead>
+              <tr>
+                <th>Financial Year</th>
+                <th class="num">Multi-Period Commitment (US$ M)</th>
+                <th class="num">Annual Commitment (US$ M)</th>
+                <th class="num">Annual Disbursement (US$ M)</th>
+                <th class="num">Number of Projects</th>
+              </tr>
+            </thead>
+            <tbody id="trendTableBody"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -706,7 +774,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   HARDCODED DATA (From Google Sheets)
+   HARDCODED DATA
 ═══════════════════════════════════════════════════════════════ */
 const DATA = {
   partners: [
@@ -731,16 +799,22 @@ const DATA = {
     { area:'Irrigation Development', pct:25 },
     { area:'Agriculture Research', pct:10 },
     { area:'Mega Farms', pct:8 },
-    { area:'Structured markets', pct:7 },
+    { area:'Structured Markets', pct:7 },
     { area:'Farm Inputs', pct:6 },
     { area:'Agriculture Mechanization', pct:4 }
   ],
   trends: [
-    { year:'FY 2021/22', commitment: 418.00, disbursement: 332.00 },
-    { year:'FY 2022/23', commitment: 486.96, disbursement: 340.87 },
-    { year:'FY 2023/24', commitment: 556.26, disbursement: 511.94 },
-    { year:'FY 2024/25', commitment: 360.59, disbursement: 275.80 },
-    { year:'FY 2025/26', commitment: 294.11, disbursement: 215.32 }
+    { year:'FY 2015/16', multi:1200.00, commitment: 353.25, disbursement: 219.58, projects: 0 },
+    { year:'FY 2016/17', multi:1463.20, commitment: 493.50, disbursement: 198.00, projects: 99 },
+    { year:'FY 2017/18', multi:1728.00, commitment: 341.11, disbursement: 308.00, projects: 88 },
+    { year:'FY 2018/19', multi:1597.00, commitment: 340.35, disbursement: 270.77, projects: 95 },
+    { year:'FY 2019/20', multi:1703.00, commitment: 375.14, disbursement: 249.28, projects: 107 },
+    { year:'FY 2020/21', multi:1818.00, commitment: 361.33, disbursement: 329.75, projects: 112 },
+    { year:'FY 2021/22', multi:1939.85, commitment: 418.00, disbursement: 332.00, projects: 103 },
+    { year:'FY 2022/23', multi:2191.00, commitment: 486.96, disbursement: 340.87, projects: 76 },
+    { year:'FY 2023/24', multi:2500.00, commitment: 556.26, disbursement: 511.94, projects: 89 },
+    { year:'FY 2024/25', multi:1622.79, commitment: 360.59, disbursement: 275.80, projects: 68 },
+    { year:'FY 2025/26', multi:1470.57, commitment: 294.11, disbursement: 220.59, projects: 71 }
   ],
   geo: [
     { district: 'Lilongwe', projects: 15 },
@@ -1096,38 +1170,25 @@ function buildOverview() {
   renderBarList('topChainsDonors', donorChainsSorted.map(d=>({...d,label:d.vc})), donorChainsSorted[0].val + 1, ()=>GOLD);
 }
 
-function buildTrends() {
-  const ctx = document.getElementById('chartTrend');
-  if (!ctx) return;
-  if (window.chartTrend && typeof window.chartTrend.destroy === 'function') {
-    window.chartTrend.destroy();
+function buildTrends(filterValue = '5') {
+  let filteredData = [];
+  if (filterValue === 'all') {
+    filteredData = DATA.trends;
+  } else if (filterValue === '5') {
+    filteredData = DATA.trends.slice(-5);
+  } else {
+    filteredData = DATA.trends.filter(t => t.year.includes(filterValue));
   }
-  
-  window.chartTrend = new Chart(ctx, {
+
+  // Line Chart: Commitment vs Disbursement
+  if (window.chartTrend && typeof window.chartTrend.destroy === 'function') window.chartTrend.destroy();
+  window.chartTrend = new Chart(document.getElementById('chartTrend'), {
     type: 'line',
     data: {
-      labels: DATA.trends.map(t => t.year),
+      labels: filteredData.map(t => t.year),
       datasets: [
-        { 
-          label: 'Annual Commitment', 
-          data: DATA.trends.map(t => t.commitment), 
-          borderColor: NAVY, 
-          backgroundColor: NAVY + '20',
-          tension: 0.3, 
-          fill: true,
-          pointRadius: 5,
-          pointBackgroundColor: NAVY
-        },
-        { 
-          label: 'Annual Disbursement', 
-          data: DATA.trends.map(t => t.disbursement), 
-          borderColor: GOLD, 
-          backgroundColor: GOLD + '20',
-          tension: 0.3, 
-          fill: true,
-          pointRadius: 5,
-          pointBackgroundColor: GOLD
-        }
+        { label: 'Annual Commitment', data: filteredData.map(t => t.commitment), borderColor: NAVY, backgroundColor: NAVY + '20', tension: 0.3, fill: true, pointRadius: 5, pointBackgroundColor: NAVY },
+        { label: 'Annual Disbursement', data: filteredData.map(t => t.disbursement), borderColor: GOLD, backgroundColor: GOLD + '20', tension: 0.3, fill: true, pointRadius: 5, pointBackgroundColor: GOLD }
       ]
     },
     options: {
@@ -1138,18 +1199,76 @@ function buildTrends() {
         datalabels: { display: false }
       },
       scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: '#c8ccd1' },
-          ticks: { callback: v => '$' + v + 'M', color: AXIS_COLOR, font: { weight: '600' } }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { color: AXIS_COLOR, font: { weight: '600' } }
-        }
+        y: { beginAtZero: true, grid: { color: '#c8ccd1' }, ticks: { callback: v => '$' + v + 'M', color: AXIS_COLOR, font: { weight: '600' } } },
+        x: { grid: { display: false }, ticks: { color: AXIS_COLOR, font: { weight: '600' } } }
       }
     }
   });
+
+  // Bar Chart: Multi-Period Commitment
+  if (window.chartTrendPipeline && typeof window.chartTrendPipeline.destroy === 'function') window.chartTrendPipeline.destroy();
+  window.chartTrendPipeline = new Chart(document.getElementById('chartTrendPipeline'), {
+    type: 'bar',
+    data: {
+      labels: filteredData.map(t => t.year),
+      datasets: [{ label: 'Multi-Period Commitment', data: filteredData.map(t => t.multi), backgroundColor: NAVY, borderRadius: 5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { 
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' $' + ctx.parsed.y.toFixed(2) + 'M' } },
+        datalabels: { ...barDatalabels, formatter: v => '$' + v.toFixed(0) + 'M', color: '#1a2633', font: { weight: 'bold', size: 10 } }
+      },
+      scales: {
+        y: { 
+          beginAtZero: true, 
+          max: 3000, // Set max axis height to 3000
+          grid: { color: '#c8ccd1' }, 
+          ticks: { callback: v => '$' + v + 'M', color: AXIS_COLOR, font: { weight: '600' } } 
+        },
+        x: { grid: { display: false }, ticks: { color: AXIS_COLOR, font: { weight: '600' } } }
+      }
+    }
+  });
+
+  // Bar Chart: Number of Projects
+  if (window.chartTrendProjects && typeof window.chartTrendProjects.destroy === 'function') window.chartTrendProjects.destroy();
+  window.chartTrendProjects = new Chart(document.getElementById('chartTrendProjects'), {
+    type: 'bar',
+    data: {
+      labels: filteredData.map(t => t.year),
+      datasets: [{ label: 'Number of Projects', data: filteredData.map(t => t.projects), backgroundColor: GOLD, borderRadius: 5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { 
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + ' Projects' } },
+        datalabels: { ...barDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#c8ccd1' }, ticks: { stepSize: 10, color: AXIS_COLOR, font: { weight: '600' } } },
+        x: { grid: { display: false }, ticks: { color: AXIS_COLOR, font: { weight: '600' } } }
+      }
+    }
+  });
+
+  // Table Data
+  const tbody = document.getElementById('trendTableBody');
+  tbody.innerHTML = filteredData.map(t => `
+    <tr>
+      <td><strong>${t.year}</strong></td>
+      <td class="num">$${t.multi.toFixed(2)}M</td>
+      <td class="num">$${t.commitment.toFixed(2)}M</td>
+      <td class="num">$${t.disbursement.toFixed(2)}M</td>
+      <td class="num">${t.projects > 0 ? t.projects : 'N/A'}</td>
+    </tr>`).join('');
+}
+
+function applyTrendFilter() {
+  const select = document.getElementById('trendFilter');
+  buildTrends(select.value);
 }
 
 function buildGeo() {
@@ -1158,25 +1277,17 @@ function buildGeo() {
   if (window.chartGeo && typeof window.chartGeo.destroy === 'function') {
     window.chartGeo.destroy();
   }
-  
-  // Sort descending for chart
   const sortedGeo = [...DATA.geo].sort((a,b) => b.projects - a.projects);
 
   window.chartGeo = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: sortedGeo.map(g => g.district),
-      datasets: [{ 
-        data: sortedGeo.map(g => g.projects), 
-        backgroundColor: NAVY, 
-        borderRadius: 4 
-      }]
+      datasets: [{ data: sortedGeo.map(g => g.projects), backgroundColor: NAVY, borderRadius: 4 }]
     },
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      plugins: {
-        datalabels: { ...hBarDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } }
-      },
+      plugins: { datalabels: { ...hBarDatalabels, formatter: v => v, color: '#1a2633', font: { weight: 'bold', size: 10 } } },
       scales: { 
         x: { grid:{color:'#c8ccd1'}, ticks: {color: AXIS_COLOR, font:{weight:'600'}} }, 
         y: { grid:{display:false}, ticks:{font:{size:10, weight:'600'}, color: AXIS_COLOR} } 
@@ -1381,7 +1492,7 @@ function initializeDashboard() {
 
   // Build all dashboard sections
   buildOverview();
-  buildTrends();
+  buildTrends(); // Default to last 5 years based on HTML select default
   buildGeo();
   buildPortfolio();
   buildBudget();
@@ -1399,11 +1510,13 @@ initializeDashboard();
 window.addEventListener('resize', () => {
   if (window.chartFundingBar && typeof window.chartFundingBar.destroy === 'function') window.chartFundingBar.destroy();
   if (window.chartProjectsBar && typeof window.chartProjectsBar.destroy === 'function') window.chartProjectsBar.destroy();
-  
   buildOverview();
 
   if (window.chartTrend && typeof window.chartTrend.destroy === 'function') window.chartTrend.destroy();
-  buildTrends();
+  if (window.chartTrendPipeline && typeof window.chartTrendPipeline.destroy === 'function') window.chartTrendPipeline.destroy();
+  if (window.chartTrendProjects && typeof window.chartTrendProjects.destroy === 'function') window.chartTrendProjects.destroy();
+  const select = document.getElementById('trendFilter');
+  buildTrends(select ? select.value : '5');
 
   if (window.chartGeo && typeof window.chartGeo.destroy === 'function') window.chartGeo.destroy();
   buildGeo();
